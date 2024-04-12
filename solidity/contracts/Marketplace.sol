@@ -7,8 +7,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Marketplace {
 
     IERC20 public token; // ETH
-    IERC721 public NFT;
-    address public owner;
+    IERC721 public Artwork; 
 
     struct Listing {
         uint256 tokenID;
@@ -22,7 +21,7 @@ contract Marketplace {
 
     constructor(IERC20 _token, IERC721 _NFT) {
         token = _token;
-        NFT = _NFT;
+        Artwork = _NFT;
         owner = msg.sender;
     }
 
@@ -37,9 +36,10 @@ contract Marketplace {
     function buy(uint256 tokenID) external {
         Listing storage listing = listings[tokenID];
         require(listing.tokenID != 0, "Marketplace: listing not found");
+        require(token.balanceOf(msg.sender) >= listing.price,"Marketplace: balance not enough");
 
         token.transferFrom(msg.sender, owner, listing.price);
-        NFT.transferFrom(owner, msg.sender, tokenID);
+        Artwork.transferFrom(owner, msg.sender, tokenID);
     }
 
     function getPrice(uint256 tokenID) external view returns (uint256) {
