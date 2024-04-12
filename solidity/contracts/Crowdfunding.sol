@@ -8,7 +8,6 @@ contract Crowdfunding {
 
     IERC20 public token;
     IERC721 public NFT;
-    address public owner;
 
     // track contributions per address per event
     struct Listing {
@@ -16,6 +15,8 @@ contract Crowdfunding {
         uint256 goal;
         uint256 deadline;
         uint256 raised;
+        address topDonor;
+        uint256 maxContribution;
 
         // address designatedRecipient; // are making it this way?
 
@@ -29,14 +30,12 @@ contract Crowdfunding {
     // value: Listing
     mapping(uint256 => Listing) public listings;
 
-    constructor(IERC20 _token, IERC721 _NFT, uint256 _goal, uint256 _deadline) {
+    constructor(IERC20 _token, IERC721 _NFT) {
         token = _token;
         NFT = _NFT;
-        owner = msg.sender;
     }
 
     function createListing(uint256 tokenID, uint256 goal, uint256 deadline) external {
-        require(msg.sender == owner, "Crowdfunding: not owner");
         Listing storage listing = listings[tokenID];
         require(listing.tokenID == 0, "Crowdfunding: listing already exists");
         listing.tokenID = tokenID;
@@ -50,8 +49,9 @@ contract Crowdfunding {
         require(listing.deadline > block.timestamp, "Crowdfunding: deadline passed");
         require(listing.raised <= listing.goal, "Crowdfunding: goal reached"); // are restricting this?
 
-        token.transferFrom(msg.sender, address(this), amount);
+        token.transferFrom(msg.sender, address(this), amount); // collected from platform first
         listing.contributions[msg.sender] += amount;
+        listing.raised = listing.raised + amount;
     }
 
     function getContribution(uint256 tokenID, address contributor) external view returns (uint256) {
