@@ -8,7 +8,6 @@ contract Marketplace {
 
     IERC20 public token; // ETH
     IERC721 public Artwork; 
-    address public owner;
 
     struct Listing {
         uint256 tokenID;
@@ -37,6 +36,7 @@ contract Marketplace {
     function buy(uint256 tokenID) external {
         Listing storage listing = listings[tokenID];
         require(listing.tokenID != 0, "Marketplace: listing not found");
+        require(token.balanceOf(msg.sender) >= listing.price,"Marketplace: balance not enough");
 
         token.transferFrom(msg.sender, owner, listing.price);
         Artwork.transferFrom(owner, msg.sender, tokenID);
