@@ -19,27 +19,38 @@ contract Marketplace {
     // value: Listing
     mapping(uint256 => Listing) public listings;
 
+    event ArtworkListed(uint256 indexed tokenID, uint256 price);
+    event ArtworkSold(uint256 indexed tokenID, address indexed seller, address indexed buyer, uint256 price);
+
+
     constructor(IERC20 _token, IERC721 _NFT) {
         token = _token;
         Artwork = _NFT;
-        owner = msg.sender;
     }
 
     function createListing(uint256 tokenID, uint256 price) external {
-        require(msg.sender == owner, "Marketplace: not owner");
         Listing storage listing = listings[tokenID];
+        require(msg.sender == Artwork.ownerOf(tokenID), "Marketplace: not owner");
         require(listing.tokenID == 0, "Marketplace: listing already exists");
+
         listing.tokenID = tokenID;
         listing.price = price;
+
+        emit ArtworkListed(tokenID, price);
     }
 
     function buy(uint256 tokenID) external {
         Listing storage listing = listings[tokenID];
         require(listing.tokenID != 0, "Marketplace: listing not found");
+
+        address owner = Artwork.ownerOf(tokenID);
+
         require(token.balanceOf(msg.sender) >= listing.price,"Marketplace: balance not enough");
 
         token.transferFrom(msg.sender, owner, listing.price);
         Artwork.transferFrom(owner, msg.sender, tokenID);
+
+        emit ArtworkSold(tokenID, owner, msg.sender, listing.price);
     }
 
     function getPrice(uint256 tokenID) external view returns (uint256) {
