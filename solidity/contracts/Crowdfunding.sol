@@ -73,6 +73,8 @@ contract Crowdfunding {
     // - transfer NFT to top contributor
     // - transfer funds to owner (or designated recipient)
 
+
+    //make this automatic called when reach deadline/goal?
     function disburseRewards(uint256 tokenID) external {
         Listing storage listing = listings[tokenID];
         address owner = Artwork.ownerOf(tokenID);
