@@ -39,6 +39,8 @@ contract Marketplace {
         emit ArtworkListed(tokenID, price);
     }
 
+    //  before buying, the artwork owner must approve the marketplace contract to transfer the artwork
+    //  before buying, the buyer must approve the marketplace contract to transfer the token
     function buy(uint256 tokenID) external {
         Listing storage listing = listings[tokenID];
         require(listing.tokenID != 0, "Marketplace: listing not found");
