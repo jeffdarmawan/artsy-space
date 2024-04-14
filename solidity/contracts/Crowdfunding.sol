@@ -7,7 +7,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Crowdfunding {
 
     IERC20 public token;
-    IERC721 public NFT;
+    IERC721 public Artwork;
 
     // track contributions per address per event
     struct Listing {
@@ -16,9 +16,6 @@ contract Crowdfunding {
         uint256 deadline;
         uint256 raised;
         address topDonor;
-        uint256 maxContribution;
-
-        // address designatedRecipient; // are making it this way?
 
         // key: address
         // value: amount
@@ -32,15 +29,17 @@ contract Crowdfunding {
 
     constructor(IERC20 _token, IERC721 _NFT) {
         token = _token;
-        NFT = _NFT;
+        Artwork = _NFT;
     }
 
     function createListing(uint256 tokenID, uint256 goal, uint256 deadline) external {
         Listing storage listing = listings[tokenID];
         require(listing.tokenID == 0, "Crowdfunding: listing already exists");
+
         listing.tokenID = tokenID;
         listing.goal = goal;
         listing.deadline = deadline;
+        listing.topDonor = Artwork.ownerOf(tokenID); //initialize first to avoid null error
     }
 
     function contribute(uint256 tokenID, uint256 amount) external {
@@ -52,6 +51,10 @@ contract Crowdfunding {
         token.transferFrom(msg.sender, address(this), amount); // collected from platform first
         listing.contributions[msg.sender] += amount;
         listing.raised = listing.raised + amount;
+
+        if (listing.contributions[msg.sender] > listing.contributions[listing.topDonor]) {
+            listing.topDonor = msg.sender;
+        }
     }
 
     function getContribution(uint256 tokenID, address contributor) external view returns (uint256) {
@@ -60,14 +63,8 @@ contract Crowdfunding {
 
     function getTopContributor(uint256 tokenID) external view returns (address, uint256) {
         Listing storage listing = listings[tokenID];
-        address topContributor;
-        uint256 topAmount;
-        for (uint256 i = 0; i < listing.contributions.length; i++) {
-            if (listing.contributions[i] > topAmount) {
-                topAmount = listing.contributions[i];
-                topContributor = i;
-            }
-        }
+        address topContributor = listing.topDonor;
+        uint256 topAmount = listing.contributions[topContributor];
         return (topContributor, topAmount);
     }
 
@@ -78,22 +75,16 @@ contract Crowdfunding {
 
     function disburseRewards(uint256 tokenID) external {
         Listing storage listing = listings[tokenID];
+        address owner = Artwork.ownerOf(tokenID);
         require(listing.tokenID != 0, "Crowdfunding: listing not found");
         require(listing.deadline < block.timestamp, "Crowdfunding: deadline not passed");
         require(listing.raised >= listing.goal, "Crowdfunding: goal not reached");
 
-        // get top contributor
-        address topContributor;
-        uint256 topAmount;
-        for (uint256 i = 0; i < listing.contributions.length; i++) {
-            if (listing.contributions[i] > topAmount) {
-                topAmount = listing.contributions[i];
-                topContributor = i;
-            }
-        }
         
+        address topContributor = listing.topDonor;
+
         // transfer NFT to top contributor
-        NFT.transferFrom(address(this), topContributor, listing.tokenID);
+        Artwork.transferFrom(address(this), topContributor, listing.tokenID);
 
         // transfer funds to owner
         token.transfer(owner, listing.raised);
