@@ -71,7 +71,31 @@ contract Crowdfunding {
         return (topContributor, topAmount);
     }
 
+    
     // disburse rewards
     // - transfer NFT to top contributor
     // - transfer funds to owner (or designated recipient)
+
+    function disburseRewards(uint256 tokenID) external {
+        Listing storage listing = listings[tokenID];
+        require(listing.tokenID != 0, "Crowdfunding: listing not found");
+        require(listing.deadline < block.timestamp, "Crowdfunding: deadline not passed");
+        require(listing.raised >= listing.goal, "Crowdfunding: goal not reached");
+
+        // get top contributor
+        address topContributor;
+        uint256 topAmount;
+        for (uint256 i = 0; i < listing.contributions.length; i++) {
+            if (listing.contributions[i] > topAmount) {
+                topAmount = listing.contributions[i];
+                topContributor = i;
+            }
+        }
+        
+        // transfer NFT to top contributor
+        NFT.transferFrom(address(this), topContributor, listing.tokenID);
+
+        // transfer funds to owner
+        token.transfer(owner, listing.raised);
+    }
 }
