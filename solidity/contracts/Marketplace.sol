@@ -7,8 +7,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Marketplace {
 
     IERC20 public token; // ETH
-    IERC721 public NFT;
-    address public owner;
+    IERC721 public Artwork; 
 
     struct Listing {
         uint256 tokenID;
@@ -20,26 +19,40 @@ contract Marketplace {
     // value: Listing
     mapping(uint256 => Listing) public listings;
 
+    event ArtworkListed(uint256 indexed tokenID, uint256 price);
+    event ArtworkSold(uint256 indexed tokenID, address indexed seller, address indexed buyer, uint256 price);
+
+
     constructor(IERC20 _token, IERC721 _NFT) {
         token = _token;
-        NFT = _NFT;
-        owner = msg.sender;
+        Artwork = _NFT;
     }
 
     function createListing(uint256 tokenID, uint256 price) external {
-        require(msg.sender == owner, "Marketplace: not owner");
         Listing storage listing = listings[tokenID];
+        require(msg.sender == Artwork.ownerOf(tokenID), "Marketplace: not owner");
         require(listing.tokenID == 0, "Marketplace: listing already exists");
+
         listing.tokenID = tokenID;
         listing.price = price;
+
+        emit ArtworkListed(tokenID, price);
     }
 
+    //  before buying, the artwork owner must approve the marketplace contract to transfer the artwork
+    //  before buying, the buyer must approve the marketplace contract to transfer the token
     function buy(uint256 tokenID) external {
         Listing storage listing = listings[tokenID];
         require(listing.tokenID != 0, "Marketplace: listing not found");
 
+        address owner = Artwork.ownerOf(tokenID);
+
+        require(token.balanceOf(msg.sender) >= listing.price,"Marketplace: balance not enough");
+
         token.transferFrom(msg.sender, owner, listing.price);
-        NFT.transferFrom(owner, msg.sender, tokenID);
+        Artwork.transferFrom(owner, msg.sender, tokenID);
+
+        emit ArtworkSold(tokenID, owner, msg.sender, listing.price);
     }
 
     function getPrice(uint256 tokenID) external view returns (uint256) {
