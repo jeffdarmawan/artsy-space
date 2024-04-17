@@ -50,8 +50,7 @@ contract Crowdfunding {
         Listing storage listing = listings[tokenID];
         require(listing.tokenID != 0, "Crowdfunding: listing not found");
         require(listing.deadline > block.timestamp, "Crowdfunding: deadline passed");
-        require(listing.raised <= listing.goal, "Crowdfunding: goal reached"); // are restricting this?
-
+        
         token.transferFrom(msg.sender, address(this), amount); // collected from platform first
         listing.contributions[msg.sender] += amount;
         listing.raised = listing.raised + amount;
