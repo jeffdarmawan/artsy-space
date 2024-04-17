@@ -49,7 +49,9 @@ contract Marketplace {
 
         require(token.balanceOf(msg.sender) >= listing.price,"Marketplace: balance not enough");
 
-        token.transferFrom(msg.sender, owner, listing.price);
+        token.transferFrom(msg.sender, owner, 0.97 * listing.price);
+        //platform fee
+        token.transferFrom(msg.sender, address(this), 0.03 * listing.price);
         Artwork.transferFrom(owner, msg.sender, tokenID);
 
         emit ArtworkSold(tokenID, owner, msg.sender, listing.price);

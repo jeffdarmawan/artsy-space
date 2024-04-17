@@ -16,16 +16,20 @@ contract Crowdfunding {
         uint256 deadline;
         uint256 raised;
         address topDonor;
-
-        // key: address
-        // value: amount
-        mapping(address => uint256) contributions;
     }
 
     // all listings
     // key: tokenID
     // value: Listing
     mapping(uint256 => Listing) public listings;
+
+
+    struct Contribution {
+        address contributor;
+        uint256 amount;
+    }
+
+    mapping(uint256 => Contribution[]) public contributions;
 
     constructor(IERC20 _token, IERC721 _NFT) {
         token = _token;
@@ -71,24 +75,29 @@ contract Crowdfunding {
     
     // disburse rewards
     // - transfer NFT to top contributor
-    // - transfer funds to owner (or designated recipient)
+    // transfer funds to owner (or designated recipient
 
-
-    //make this automatic called when reach deadline/goal?
+    //make this automatic called when reach deadline
+    //refund if deadline passed and goal not reached
     function disburseRewards(uint256 tokenID) external {
         Listing storage listing = listings[tokenID];
         address owner = Artwork.ownerOf(tokenID);
         require(listing.tokenID != 0, "Crowdfunding: listing not found");
         require(listing.deadline < block.timestamp, "Crowdfunding: deadline not passed");
-        require(listing.raised >= listing.goal, "Crowdfunding: goal not reached");
-
         
         address topContributor = listing.topDonor;
 
-        // transfer NFT to top contributor
-        Artwork.transferFrom(address(this), topContributor, listing.tokenID);
-
-        // transfer funds to owner
-        token.transfer(owner, listing.raised);
+        if(listing.raised >= listing.goal) {
+            // transfer NFT to top contributor
+            Artwork.transferFrom(owner, topContributor, listing.tokenID);
+            // transfer funds to owner
+            token.transfer(owner, listing.raised);
+        } else {
+            // refund all contributors
+            for (uint256 i = 0; i < contributions[tokenID].length; i++) {
+                token.transfer(contributions[tokenID][i].contributor, contributions[tokenID][i].amount);
+                contributions[tokenID][i].amount = 0; // Set contribution amount to zero
+            }
+        }
     }
 }
