@@ -39,12 +39,14 @@ contract Crowdfunding {
         Artwork = _NFT;
     }
 
-    function createListing(uint256 tokenID, uint256 goal, uint256 deadline) external {
+    function createListing(uint256 tokenID, uint256 goal, uint256 numdays) external {
         Listing storage listing = listings[tokenID];
+        require(msg.sender == Artwork.ownerOf(tokenID), "Crowdfunding: not owner");
         require(listing.tokenID == 0, "Crowdfunding: listing already exists");
 
         listing.tokenID = tokenID;
         listing.goal = goal;
+        uint256 deadline = block.timestamp + (numdays * 1 days);
         listing.deadline = deadline;
         listing.topDonor = Artwork.ownerOf(tokenID); //initialize first to avoid null error
     }
@@ -102,6 +104,8 @@ contract Crowdfunding {
         require(listing.tokenID != 0, "Crowdfunding: listing not found");
         require(listing.deadline < block.timestamp, "Crowdfunding: deadline not passed");
         
+        require(listing.raised > 0, "Crowdfunding: no money is raised / is distributed");
+        
         address topContributor = listing.topDonor;
 
         if(listing.raised >= listing.goal) {
@@ -116,5 +120,8 @@ contract Crowdfunding {
                 contributions[tokenID][i].amount = 0; // Set contribution amount to zero
             }
         }
+
+        // reset the listing
+        listing.raised = 0; 
     }
 }

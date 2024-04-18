@@ -50,6 +50,7 @@ contract Marketplace {
         require(token.balanceOf(msg.sender) >= listing.price,"Marketplace: balance not enough");
 
         uint256 platformFee = listing.price * 3 / 100; // 3% of the listing price
+        platformFee = platformFee < 5 ? 5 : platformFee; // Set minimum fee to 5
         uint256 remainingAmount = listing.price - platformFee;
 
         // Transfer the remaining amount to the owner
