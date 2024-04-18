@@ -8,36 +8,25 @@ import Heading from "@/ui/head";
 
 // lib
 import CatalogProduct from "@/app/(subroot)/shop/catalogProduct";
-import MintNFTModal from "@/components/ui/mint-mft-modal";
+import NFTMintModal from "@/components/ui/nft-mint-modal";
 
 // import { useAccount, useDisconnect, useEnsAvatar, useEnsName } from 'wagmi'
 import { useAccount, useWriteContract, useChains } from 'wagmi'
 import { Button } from '@mui/material'
 
-import abi from '@/abi/MyToken_abi.json' 
+import abi from '@/contracts/abi/MyToken_abi.json' 
+import NFTSellModal from "@/components/ui/nft-sell-modal";
+import NFTCrowdfundModal from "@/components/ui/nft-crowdfund-modal";
 
 export default function Page() {
   const account = useAccount();
   const chains = useChains();
 
   const { data: hash, writeContract } = useWriteContract() 
-  console.log(chains)
-  console.log(account)
-  console.log(account.address)
-  console.log(account.addresses)
-  console.log(account.chain)
-  console.log(account.chainId)
-  console.log(account.connector)
-  console.log(account.isConnected)
-  console.log(account.isConnecting)
-  console.log(account.isDisconnected)
-  console.log(account.isReconnecting)
-  console.log(account.status)
 
-
+  // this transfers MyToken we did in the gmeet
   const handleTransfer = () => {
     console.log("transferring");
-    // setFile(acceptedFiles[0]);
     writeContract({ 
       address: '0x18Bd9dC4F31f2Fbd7Fa2C7524a076DB877c5C239', 
       abi: abi, 
@@ -54,27 +43,18 @@ export default function Page() {
             Your Collection
           </Heading>
           <p>Your address: {account.address}</p>
-          <p>account content: </p>
+          {/* <p>account content: </p> */}
           {/* <pre>
             {JSON.stringify(account, null, 2)}
           </pre> */}
-          {/* account.address: {account.address}
-          account.addresses: {account.addresses}
-          account.chain.name: {account.chain?.name}
-          account.chain: {account.chain?.name}
-          account.chainId: {account.chainId}
-          account.connector: {account.connector}
-          account.isConnected: {account.isConnected}
-          account.isConnecting: {account.isConnecting}
-          account.isDisconnected: {account.isDisconnected}
-          account.isReconnecting: {account.isReconnecting}
-          account.status: {account.status} */}
-          {account.address && <MintNFTModal />}
+          {account.address && <NFTMintModal />}
+          {account.address && <NFTSellModal />}
+          {account.address && <NFTCrowdfundModal/>}
         </div>
 
         <Button onClick={handleTransfer}>Transfer</Button>
 
-        <CatalogProduct />
+        <CatalogProduct address={undefined} />
       </div>
     </SectionLayout>
   );

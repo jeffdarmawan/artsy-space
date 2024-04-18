@@ -13,9 +13,34 @@ import products from "@/data/product.json";
 // lib
 import { cn } from "@/lib/utils";
 
-const CatalogProduct = () => {
+// wagmi
+import { useAccount, useWriteContract } from 'wagmi'
+import { type Address, type Chain } from 'viem'
 
+// abi
+import { Artwork } from '@/contracts/Artwork'
+
+const CatalogProduct = ({ 
+  address,
+}: { address: Address | undefined }) => {
+
+  const account = useAccount();
+
+  console.log("catalog")
+
+  // if (address == undefined) {
+  //   address = account.address;
+  // }
+  
   // get all Artworks owned by the user
+  const { data: hash, writeContract } = useWriteContract()
+
+  // writeContract({ 
+  //   address: Artwork.address, 
+  //   abi: Artwork.abi, 
+  //   functionName: 'getArtwork', 
+  //   args: [address], 
+  // })
 
   const showDetail = useProductDetail((state) => state.showDetail);
   return (
@@ -103,11 +128,11 @@ const CatalogProduct = () => {
         ))}
       </div>
 
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
         <button className="rounded-full border border-[#141718] px-10 py-1.5 font-inter text-base font-medium text-[#141718]">
           Show more
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

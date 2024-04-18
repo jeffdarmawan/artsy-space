@@ -302,7 +302,7 @@ export default function Page() {
           </div>
         </div>
 
-        <CatalogProduct />
+        <CatalogProduct address={undefined}/>
       </div>
     </SectionLayout>
   );

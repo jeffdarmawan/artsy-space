@@ -21,7 +21,7 @@ import {
 
 // data
 import products from "@/data/product.json";
-import MintNFTModal from "@/components/ui/mint-mft-modal";
+import NFTMintModal from "@/components/ui/nft-mint-modal";
 
 export default function Home() {
   console.log("app/(root)/page.tsx");
@@ -205,9 +205,6 @@ export default function Home() {
         </div>
       </SectionLayout>
 
-      <SectionLayout>
-        <MintNFTModal />
-      </SectionLayout>
       {/* Promotion section */}
       {/* <div className="grid overflow-hidden md:grid-cols-2 lg:h-full lg:max-h-[500px] lg:place-items-center">
         <div className="w-full justify-end bg-gray-400 md:flex">

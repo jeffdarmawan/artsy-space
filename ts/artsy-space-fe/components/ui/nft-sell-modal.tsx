@@ -25,7 +25,10 @@ const style = {
   };
 
 
-const MintNFTModal = () => {
+import abi from '@/contracts/abi/MyToken_abi.json' 
+import { useAccount, useWriteContract, useChains } from 'wagmi'
+
+const NFTSellModal = () => {
     // file state
     const [file, setFile] = useState<File>();
     const [uploading, setUploading] = useState(false);
@@ -48,6 +51,10 @@ const MintNFTModal = () => {
 
     let accepted={"image/*": ["jpg", "jpeg", "png", "gif"]}
 
+
+    const { data: hash, writeContract } = useWriteContract() 
+
+    // @Keran: your submit button should call this function
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -57,52 +64,24 @@ const MintNFTModal = () => {
         }
 
         setUploading(true);
+    
+        // TODO: listItem -> interact with smart contract
 
-        // TODO: send to s3
-        const response = await fetch(
-            process.env.NEXT_PUBLIC_BASE_URL + '/api/upload',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ filename: file.name, contentType: file.type }),
-            }
-        )
-
-        // TODO: send tokenURI.json to s3
-    
-        // TODO: mint Artwork -> interact with smart contract
-        
-
-        if (response.ok) {
-            const { url, fields } = await response.json()
-    
-            const formData = new FormData()
-            Object.entries(fields).forEach(([key, value]) => {
-                formData.append(key, value as string)
-            })
-            formData.append('file', file)
-    
-            const uploadResponse = await fetch(url, {
-                method: 'POST',
-                body: formData,
-            })
-    
-            if (uploadResponse.ok) {
-                alert('Upload successful!')
-            } else {
-                console.error('S3 Upload Error:', uploadResponse)
-                alert('Upload failed.')
-            }
-        } else {
-            alert('Failed to get pre-signed URL.')
-        }
+        // example: this transfers MyToken we did in the gmeet
+        const handleTransfer = () => {
+            console.log("transferring");
+            writeContract({ 
+            address: '0x18Bd9dC4F31f2Fbd7Fa2C7524a076DB877c5C239', 
+            abi: abi, 
+            functionName: 'transfer', 
+            args: ['0x475b87f5C780E7F425B64fd041b4de3ca328658f', 2000], 
+            }) 
+        };
     }
 
     return (
         <>
-            <Button onClick={handleOpen} variant="contained">Mint NFT</Button>
+            <Button onClick={handleOpen} variant="contained">Sell NFT</Button>
             <Modal 
                 open={open}
                 onClose={handleClose}
@@ -123,11 +102,22 @@ const MintNFTModal = () => {
                         <CloseIcon />
                     </IconButton>
                     <Typography id="modal-modal-title" variant="h4" component="h2">
-                        Mint Your Artwork!
+                        Sell Your Artwork!
                     </Typography>
+
+                    
 
                     <div style={{marginTop: '20px'}}>
                     <form onSubmit={handleSubmit}>
+
+                        <input
+                                type="text"
+                                id="tokenId"
+                                placeholder="Put tokenId here"
+                                style={{width: '95%', border: '1px solid #ccc', padding: '5px', marginTop: '10px', marginBottom: '20px', marginLeft: '0px'}}
+                                onChange={(e) => setTitle(e.target.value)}
+                                required
+                            />
                         {/* split layout into two using table */}
                         <table style={{width: '100%', height: '520px'}}>
                             <tr>
@@ -192,4 +182,4 @@ const MintNFTModal = () => {
     );
 }
 
-export default MintNFTModal;
+export default NFTSellModal;

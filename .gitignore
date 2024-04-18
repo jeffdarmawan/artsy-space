@@ -29,7 +29,7 @@
 /ts/artsy-space-fe/yarn-error.log*
 
 # local env files
-/ts/artsy-space-fe/.env*.local
+/ts/artsy-space-fe/.env*
 
 # vercel
 /ts/artsy-space-fe/.vercel
