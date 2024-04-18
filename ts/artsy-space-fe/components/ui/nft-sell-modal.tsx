@@ -25,7 +25,7 @@ const style = {
   };
 
 
-import abi from '@/contracts/abi/MyToken_abi.json' 
+import abi from '@/contracts/abi/Marketplace_abi.json' 
 import { useAccount, useWriteContract, useChains } from 'wagmi'
 
 const NFTSellModal = () => {
@@ -42,8 +42,8 @@ const NFTSellModal = () => {
     }
 
     // form state
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
+    const [tokenID, setTokenID] = useState("");
+    const [price, setPrice] = useState("");
 
     const handleDrop = (acceptedFiles: File[]) => {
         setFile(acceptedFiles[0]);
@@ -58,25 +58,17 @@ const NFTSellModal = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!file) {
-            alert("Please upload a file");
-            return;
-        }
-
-        setUploading(true);
+        // setUploading(true);
     
-        // TODO: listItem -> interact with smart contract
-
-        // example: this transfers MyToken we did in the gmeet
-        const handleTransfer = () => {
-            console.log("transferring");
-            writeContract({ 
-            address: '0x18Bd9dC4F31f2Fbd7Fa2C7524a076DB877c5C239', 
+        // listItem -> interact with smart contract
+        console.log("transferring");
+        writeContract({ 
+            address: '0xa19B8281f2E8E81836F091505416C436FD17931F', // address of contract "MarketPlace.sol"
             abi: abi, 
-            functionName: 'transfer', 
-            args: ['0x475b87f5C780E7F425B64fd041b4de3ca328658f', 2000], 
-            }) 
-        };
+            functionName: 'createListing', 
+            args: [parseInt(tokenID), parseInt(price)], // tokenID, price
+        }) 
+        
     }
 
     return (
@@ -107,72 +99,34 @@ const NFTSellModal = () => {
 
                     
 
-                    <div style={{marginTop: '20px'}}>
+                    <div style={{ padding: '20px', maxWidth: '400px', margin: 'auto' }}>
                     <form onSubmit={handleSubmit}>
-
-                        <input
+                        <div style={{ marginBottom: '20px' }}>
+                            <label htmlFor="tokenId" style={{ display: 'block', marginBottom: '5px' }}>Token ID:</label>
+                            <input
                                 type="text"
                                 id="tokenId"
-                                placeholder="Put tokenId here"
-                                style={{width: '95%', border: '1px solid #ccc', padding: '5px', marginTop: '10px', marginBottom: '20px', marginLeft: '0px'}}
-                                onChange={(e) => setTitle(e.target.value)}
+                                onChange={(e) => setTokenID(e.target.value)}
+                                placeholder="Enter Token ID"
+                                style={{ width: '100%', padding: '10px', border: '1px solid #ccc' }}
                                 required
                             />
-                        {/* split layout into two using table */}
-                        <table style={{width: '100%', height: '520px'}}>
-                            <tr>
-                                <th style={{ width: '50%' }}></th>
-                                <th style={{ width: '50%' }}></th>
-                            </tr>
-                            <tr style={{height: '15%'}}>
-                                <td>
-                                    <label htmlFor="title">Title:</label>
-                                </td>
-                                <td rowSpan={4}>
-                                    {file && <img src={URL.createObjectURL(file)} alt="uploaded" />}
-                                    {!file &&
-                                        <Dropzone onDrop={handleDrop} accept={accepted} minSize={1024} maxSize={307200}>
-                                            {({ getRootProps, getInputProps }) => (
-                                                <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-md p-8 text-center"
-                                                    style={{height: '100%'}}>
-                                                    <input {...getInputProps()} />
-                                                    <p>Drag n' drop some files here, or click to select files</p>
-                                                </div>
-                                            )}
-                                        </Dropzone>
-                                    }   
-                                </td>
-                            </tr>
-                            <tr style={{height: '15%'}}>
-                                <td>
-                                    <input
-                                            type="text"
-                                            id="title"
-                                            placeholder="Add Artwork Title"
-                                            style={{width: '95%', border: '1px solid #ccc', padding: '5px', marginTop: '10px', marginBottom: '20px', marginLeft: '0px'}}
-                                            onChange={(e) => setTitle(e.target.value)}
-                                            required
-                                        />
-                                </td>
-                            </tr>
-                            <tr style={{height: '15%'}}>
-                                <td>
-                                    <label htmlFor="description">Description:</label>
-                                </td>
-                            </tr>
-                            <tr style={{height: '55%'}}>
-                                <td>
-                                    <textarea
-                                            id="description"
-                                            placeholder="Add Artwork Description"
-                                            style={{width: '95%', height: '100%', border: '1px solid #ccc', padding: '5px', marginTop: '10px', marginBottom: '20px', marginLeft: '0px'}}
-                                            onChange={(e) => setDescription(e.target.value)}
-                                            required
-                                        />
-                                </td>
-                            </tr>
-                        </table>
-                        <Button type="submit" variant="contained" color="primary">Submit</Button>
+                        </div>
+                        
+                        <div style={{ marginBottom: '20px' }}>
+                        <label htmlFor="price" style={{ display: 'block', marginBottom: '5px' }}>Price:</label>
+                            <input
+                                type="text"
+                                id="price"
+                                onChange={(e) => setPrice(e.target.value)}
+                                placeholder="Selling at ..."
+                                style={{ width: '100%', padding: '10px', border: '1px solid #ccc' }}
+                                required
+                            />
+                        </div>
+                        <button type="submit" style={{ padding: '10px 20px', background: 'blue', color: 'white', border: 'none', cursor: 'pointer' }}>
+                        Submit
+                        </button>
                     </form>
                     </div>
                 </Box>
