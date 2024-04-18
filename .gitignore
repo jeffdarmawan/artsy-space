@@ -30,6 +30,7 @@
 
 # local env files
 /ts/artsy-space-fe/.env*
+/ts/artsy-space-fe/.env.development
 
 # vercel
 /ts/artsy-space-fe/.vercel
