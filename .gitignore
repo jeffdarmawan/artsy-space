@@ -38,3 +38,4 @@
 # typescript
 /ts/artsy-space-fe/*.tsbuildinfo
 /ts/artsy-space-fe/next-env.d.ts
+ts/artsy-space-fe/.env.development
