@@ -75,8 +75,8 @@ const ProductSlider = ({ images }: { images: string[] }) => {
                 quality={100}
                 width={231}
                 height={308}
-                src={`/images/${image}`}
-                alt="sumplekuping"
+                src={image}
+                alt="product_img"
                 className={cn(
                   "h-full w-full",
                   idx === array.length - 1
@@ -87,7 +87,7 @@ const ProductSlider = ({ images }: { images: string[] }) => {
             </div>
           ))}
         </div>
-        {loaded && instanceRef.current && (
+        {/* {loaded && instanceRef.current && (
           <>
             <ProductNavigationButton
               position="left"
@@ -114,13 +114,13 @@ const ProductSlider = ({ images }: { images: string[] }) => {
               }
             />
           </>
-        )}
+        )} */}
       </div>
       <div className="hidden w-full overflow-hidden lg:flex">
-        <ProductThumbnailSlider
+        {/* <ProductThumbnailSlider
           products={images}
           thumbnailInstanceRef={instanceRef}
-        />
+        /> */}
       </div>
     </div>
   );
