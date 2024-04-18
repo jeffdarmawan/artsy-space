@@ -3,5 +3,5 @@ import { type Address, type Chain } from 'viem'
 
 export const Artwork = {
     abi: abi,
-    address: '0x18Bd9dC4F31f2Fbd7Fa2C7524a076DB877c5C239' as Address,
+    address: '0x1E2172c2FEf18158A8a45c385B4B9d1Dd0f0d11e' as Address,
 }
