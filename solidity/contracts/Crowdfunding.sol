@@ -16,6 +16,9 @@ contract Crowdfunding {
         uint256 deadline;
         uint256 raised;
         address topDonor;
+
+        mapping(address => uint256) contributions;
+
     }
 
     // all listings
@@ -53,11 +56,26 @@ contract Crowdfunding {
         
         token.transferFrom(msg.sender, address(this), amount); // collected from platform first
         listing.contributions[msg.sender] += amount;
-        listing.raised = listing.raised + amount;
 
         if (listing.contributions[msg.sender] > listing.contributions[listing.topDonor]) {
             listing.topDonor = msg.sender;
         }
+        //put into the contribution record list
+        Contribution[] storage contributorList = contributions[tokenID];
+        bool found = false;
+        for (uint256 i = 0; i < contributorList.length; i++) {
+            if (contributorList[i].contributor == msg.sender) {
+                contributorList[i].amount += amount;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            contributorList.push(Contribution(msg.sender, amount));
+        }
+        
+        listing.raised += amount; // Update total raised amount
+
     }
 
     function getContribution(uint256 tokenID, address contributor) external view returns (uint256) {
