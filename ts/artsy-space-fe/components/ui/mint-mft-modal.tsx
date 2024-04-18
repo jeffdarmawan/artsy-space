@@ -72,7 +72,9 @@ const MintNFTModal = () => {
 
         // TODO: send tokenURI.json to s3
     
-        // TODO: mint Artwork
+        // TODO: mint Artwork -> interact with smart contract
+        
+
         if (response.ok) {
             const { url, fields } = await response.json()
     

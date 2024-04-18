@@ -4,36 +4,36 @@
 # add gitignores from ts/artsy-space-fe/.gitignore
 
 # dependencies
-/ts/artsy-space/node_modules
-/ts/artsy-space/.pnp
-/ts/artsy-space/.pnp.js
-/ts/artsy-space/.yarn/install-state.gz
+/ts/artsy-space-fe/node_modules
+/ts/artsy-space-fe/.pnp
+/ts/artsy-space-fe/.pnp.js
+/ts/artsy-space-fe/.yarn/install-state.gz
 
 # testing
-/ts/artsy-space/coverage
+/ts/artsy-space-fe/coverage
 
 # next.js
-/ts/artsy-space/.next/
-/ts/artsy-space/out/
+/ts/artsy-space-fe/.next/
+/ts/artsy-space-fe/out/
 
 # production
-/ts/artsy-space/build
+/ts/artsy-space-fe/build
 
 # misc
-/ts/artsy-space/.DS_Store
-/ts/artsy-space/*.pem
+/ts/artsy-space-fe/.DS_Store
+/ts/artsy-space-fe/*.pem
 
 # debug
-/ts/artsy-space/npm-debug.log*
-/ts/artsy-space/yarn-debug.log*
-/ts/artsy-space/yarn-error.log*
+/ts/artsy-space-fe/npm-debug.log*
+/ts/artsy-space-fe/yarn-debug.log*
+/ts/artsy-space-fe/yarn-error.log*
 
 # local env files
-/ts/artsy-space/.env*.local
+/ts/artsy-space-fe/.env*.local
 
 # vercel
-/ts/artsy-space/.vercel
+/ts/artsy-space-fe/.vercel
 
 # typescript
-/ts/artsy-space/*.tsbuildinfo
-/ts/artsy-space/next-env.d.ts
+/ts/artsy-space-fe/*.tsbuildinfo
+/ts/artsy-space-fe/next-env.d.ts
