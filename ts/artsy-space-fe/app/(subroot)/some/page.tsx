@@ -2,7 +2,7 @@
 
 import { useAccount } from 'wagmi'
 import { getAccount } from '@wagmi/core'
-import { config } from './config' 
+// import { config } from './config' 
 
 function App() {
 //   const account = getAccount(config);
