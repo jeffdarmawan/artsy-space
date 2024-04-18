@@ -9,6 +9,10 @@ import Modal from '@mui/material/Modal';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
+// NFT
+import { useAccount, useWriteContract } from 'wagmi'
+import { Artwork } from '@/contracts/Artwork'
+
 
 // modal style 
 const style = {
@@ -46,6 +50,8 @@ const NFTMintModal = () => {
         setFile(acceptedFiles[0]);
     };
 
+    const { data: hash, writeContract } = useWriteContract() 
+
     let accepted={"image/*": ["jpg", "jpeg", "png", "gif"]}
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +64,11 @@ const NFTMintModal = () => {
 
         setUploading(true);
 
-        // TODO: send to s3
+        console.log("file.name: ", file.name);
+
+        // 1. Upload NFT file to S3
+
+        // 1.1. get pre-signed URL
         const response = await fetch(
             process.env.NEXT_PUBLIC_BASE_URL + '/api/upload',
             {
@@ -69,14 +79,15 @@ const NFTMintModal = () => {
                 body: JSON.stringify({ filename: file.name, contentType: file.type }),
             }
         )
-
-        // TODO: send tokenURI.json to s3
-    
-        // TODO: mint Artwork -> interact with smart contract
         
-
+        // 1.2. upload file to S3
+        let fileObjectId;
+        let URL;
         if (response.ok) {
             const { url, fields } = await response.json()
+            URL = url;
+            fileObjectId = fields.key;
+            
     
             const formData = new FormData()
             Object.entries(fields).forEach(([key, value]) => {
@@ -90,14 +101,67 @@ const NFTMintModal = () => {
             })
     
             if (uploadResponse.ok) {
+                console.log("Upload successful! File url: ", URL+fileObjectId)
+            } else {
+                console.error('S3 File Upload Error:', uploadResponse)
+            }
+        } else {
+            console.error('Failed to get pre-signed URL.')
+        }
+
+        // 2. Upload NFT metadata to S3
+        let metadata = {
+            title: title,
+            description: description,
+            image_url: URL + '/' + fileObjectId,
+        }
+        const response2 = await fetch(
+            process.env.NEXT_PUBLIC_BASE_URL + '/api/upload',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ filename: '', contentType: 'application/json' }),
+            }
+        )
+
+        let tokenURI: string;
+        if (response2.ok) {
+            const { url, fields } = await response2.json()
+            tokenURI = url + fields.key;
+            
+            const formData = new FormData()
+            Object.entries(fields).forEach(([key, value]) => {
+                formData.append(key, value as string)
+            })
+            formData.append('file', JSON.stringify(metadata))
+    
+            const uploadResponse = await fetch(url, {
+                method: 'POST',
+                body: formData,
+            })
+    
+            if (uploadResponse.ok) {
                 alert('Upload successful!')
+                console.log("tokenURI: ", tokenURI)
+
+                // 3. Mint NFT
+                console.log("minting NFT");
+                writeContract({ 
+                    address: Artwork.address, 
+                    abi: Artwork.abi, 
+                    functionName: 'createArtwork', 
+                    args: [ tokenURI ], 
+                });
             } else {
                 console.error('S3 Upload Error:', uploadResponse)
-                alert('Upload failed.')
             }
         } else {
             alert('Failed to get pre-signed URL.')
         }
+
+        setOpen(false);
     }
 
     return (

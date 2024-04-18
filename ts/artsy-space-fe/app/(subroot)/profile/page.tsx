@@ -8,13 +8,13 @@ import Heading from "@/ui/head";
 
 // lib
 import CatalogProduct from "@/app/(subroot)/shop/catalogProduct";
-import NFTMintModal from "@/components/ui/nft-mint-modal";
 
 // import { useAccount, useDisconnect, useEnsAvatar, useEnsName } from 'wagmi'
 import { useAccount, useWriteContract, useChains } from 'wagmi'
 import { Button } from '@mui/material'
 
 import abi from '@/contracts/abi/MyToken_abi.json' 
+import NFTMintModal from "@/components/ui/nft-mint-modal";
 import NFTSellModal from "@/components/ui/nft-sell-modal";
 import NFTCrowdfundModal from "@/components/ui/nft-crowdfund-modal";
 
