@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState } from "react";
 import Dropzone from "react-dropzone";
@@ -113,7 +113,7 @@ const NFTMintModal = () => {
         let metadata = {
             title: title,
             description: description,
-            image_url: URL + '/' + fileObjectId,
+            image_url: URL + fileObjectId,
         }
         const response2 = await fetch(
             process.env.NEXT_PUBLIC_BASE_URL + '/api/upload',

@@ -1,6 +1,7 @@
 import { locall } from '@/web3/chains/locall';
 import { coinbaseWallet, injected, walletConnect } from 'wagmi/connectors'
 import { http, createConfig } from 'wagmi'
+
 export const wagmiConfig = createConfig({
   chains: [locall],
   connectors: [

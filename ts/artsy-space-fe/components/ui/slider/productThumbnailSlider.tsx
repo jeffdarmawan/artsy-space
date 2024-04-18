@@ -73,7 +73,7 @@ const ProductThumbnailSlider: React.FC<ProductThumbnailSLiderProps> = ({
           <Image
             width={231}
             height={308}
-            src={`/images/${product}`}
+            src={product}
             alt="sumplekuping"
             className="h-full w-full object-cover"
           />

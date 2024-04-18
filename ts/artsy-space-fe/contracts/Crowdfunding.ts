@@ -3,5 +3,13 @@ import { type Address, type Chain } from 'viem'
 
 export const Crowdfunding = {
     abi: abi,
-    address: '0x827d49a3A6541aa70d120A2C9f3224052417b6f7' as Address,
+    address: '0x814000936bB7251d07fE7E72453749CE38867cf3' as Address,
+}
+
+export type CrowdfundListing = {
+    tokenID: number,
+    goal: number,
+    deadline: number,
+    raised: number,
+    topDonor: Address,
 }

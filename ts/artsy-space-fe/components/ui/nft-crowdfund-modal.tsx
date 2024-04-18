@@ -9,6 +9,8 @@ import Modal from '@mui/material/Modal';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
+import { Artwork } from '@/contracts/Artwork'
+
 
 // modal style 
 const style = {
@@ -25,7 +27,7 @@ const style = {
   };
 
 
-import abi from '@/contracts/abi/MyToken_abi.json' 
+import abi from '@/contracts/abi/Crowdfunding_abi.json' 
 import { useAccount, useWriteContract, useChains } from 'wagmi'
 
 const NFTCrowdfundModal = () => {
@@ -42,8 +44,9 @@ const NFTCrowdfundModal = () => {
     }
 
     // form state
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
+    const [tokenID, setTokenId] = useState("");
+    const [goal, setGoal] = useState("");
+    const [deadline, setDeadline] = useState("");
 
     const handleDrop = (acceptedFiles: File[]) => {
         setFile(acceptedFiles[0]);
@@ -57,26 +60,17 @@ const NFTCrowdfundModal = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!file) {
-            alert("Please upload a file");
-            return;
-        }
-
-        setUploading(true);
+        // setUploading(true);
+        console.log("tokenID:", parseInt(tokenID), "goal:", parseInt(goal), "deadline:", parseInt(deadline));
     
-        // TODO: listItem -> interact with smart contract
-        
-        // example: this transfers MyToken we did in the gmeet
-        const handleTransfer = () => {
-            console.log("transferring");
-            writeContract({ 
-            address: '0x18Bd9dC4F31f2Fbd7Fa2C7524a076DB877c5C239', 
-            abi: abi, 
-            functionName: 'transfer', 
-            args: ['0x475b87f5C780E7F425B64fd041b4de3ca328658f', 2000], 
-            }) 
-        };
-    }
+        //listItem -> interact with smart contract
+        writeContract({ 
+            address: "0x7F7734b949C71d38819CDE926E2B907896CB5ba3", // address of contract "Crowdfund.sol"
+            abi: abi,
+            functionName: 'createListing',
+            args: [parseInt(tokenID), parseInt(goal), parseInt(deadline)], //tokenID, goal, deadline
+        })
+    };
 
     return (
         <>
@@ -107,13 +101,13 @@ const NFTCrowdfundModal = () => {
                     <div style={{marginTop: '20px'}}>
                     <form onSubmit={handleSubmit}>
                         <input
-                                    type="text"
-                                    id="tokenId"
-                                    placeholder="Put tokenId here"
-                                    style={{width: '95%', border: '1px solid #ccc', padding: '5px', marginTop: '10px', marginBottom: '20px', marginLeft: '0px'}}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    required
-                                />
+                                type="text"
+                                id="tokenId"
+                                placeholder="Put tokenId here"
+                                style={{width: '95%', border: '1px solid #ccc', padding: '5px', marginTop: '10px', marginBottom: '20px', marginLeft: '0px'}}
+                                onChange={(e) => setTokenId(e.target.value)}
+                                required
+                            />
                         {/* split layout into two using table */}
                         <table style={{width: '100%', height: '520px'}}>
                             <tr>
@@ -122,47 +116,33 @@ const NFTCrowdfundModal = () => {
                             </tr>
                             <tr style={{height: '15%'}}>
                                 <td>
-                                    <label htmlFor="title">Title:</label>
-                                </td>
-                                <td rowSpan={4}>
-                                    {file && <img src={URL.createObjectURL(file)} alt="uploaded" />}
-                                    {!file &&
-                                        <Dropzone onDrop={handleDrop} accept={accepted} minSize={1024} maxSize={307200}>
-                                            {({ getRootProps, getInputProps }) => (
-                                                <div {...getRootProps()} className="border-2 border-dashed border-gray-300 rounded-md p-8 text-center"
-                                                    style={{height: '100%'}}>
-                                                    <input {...getInputProps()} />
-                                                    <p>Drag n' drop some files here, or click to select files</p>
-                                                </div>
-                                            )}
-                                        </Dropzone>
-                                    }   
+                                    <label htmlFor="goal">Goal:</label>
                                 </td>
                             </tr>
                             <tr style={{height: '15%'}}>
                                 <td>
                                     <input
                                             type="text"
-                                            id="title"
-                                            placeholder="Add Artwork Title"
+                                            id="goal"
+                                            placeholder="Crowdfund Target"
                                             style={{width: '95%', border: '1px solid #ccc', padding: '5px', marginTop: '10px', marginBottom: '20px', marginLeft: '0px'}}
-                                            onChange={(e) => setTitle(e.target.value)}
+                                            onChange={(e) => setGoal(e.target.value)}
                                             required
                                         />
                                 </td>
                             </tr>
-                            <tr style={{height: '15%'}}>
+                            <tr style={{height: '0%'}}>
                                 <td>
-                                    <label htmlFor="description">Description:</label>
+                                    <label htmlFor="deadline">Deadline:</label>
                                 </td>
                             </tr>
                             <tr style={{height: '55%'}}>
                                 <td>
-                                    <textarea
-                                            id="description"
-                                            placeholder="Add Artwork Description"
-                                            style={{width: '95%', height: '100%', border: '1px solid #ccc', padding: '5px', marginTop: '10px', marginBottom: '20px', marginLeft: '0px'}}
-                                            onChange={(e) => setDescription(e.target.value)}
+                                    <input
+                                            id="deadline"
+                                            placeholder="Crowdfund! Until..."
+                                            style={{width: '95%', border: '1px solid #ccc', padding: '5px', marginTop: '10px', marginBottom: '20px', marginLeft: '0px'}}
+                                            onChange={(e) => setDeadline(e.target.value)}
                                             required
                                         />
                                 </td>
