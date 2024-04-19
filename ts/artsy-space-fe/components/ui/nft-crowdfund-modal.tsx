@@ -75,6 +75,8 @@ const NFTCrowdfundModal = (artwork: Artwork) => {
             functionName: 'createListing',
             args: [artwork.id, parseInt(goal), parseInt(deadline)], 
         })
+
+        setOpen(false);
     };
 
     return (

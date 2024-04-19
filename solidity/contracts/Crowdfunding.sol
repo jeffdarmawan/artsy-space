@@ -16,16 +16,16 @@ contract Crowdfunding {
         uint256 deadline;
         uint256 raised;
         address topDonor;
+        address owner;
 
         mapping(address => uint256) contributions;
-
     }
 
     // all listings
     // key: tokenID
     // value: Listing
     mapping(uint256 => Listing) public listings;
-
+    uint256[] public listedTokens;
 
     struct Contribution {
         address contributor;
@@ -48,6 +48,7 @@ contract Crowdfunding {
         listing.goal = goal;
         uint256 deadline = block.timestamp + (numdays * 1 days);
         listing.deadline = deadline;
+        listing.owner = msg.sender;
         listing.topDonor = Artwork.ownerOf(tokenID); //initialize first to avoid null error
     }
 
@@ -129,8 +130,13 @@ contract Crowdfunding {
         uint256 goal,
         uint256 deadline,
         uint256 raised,
-        address topDonor) {
+        address topDonor,
+        address owner) {
         Listing storage listing = listings[_tokenID];
-        return (listing.goal, listing.deadline, listing.raised, listing.topDonor);
+        return (listing.goal, listing.deadline, listing.raised, listing.topDonor, listing.owner);
+    }
+
+    function getAllListedTokens() external view returns (uint256[] memory){
+        return listedTokens;
     }
 }

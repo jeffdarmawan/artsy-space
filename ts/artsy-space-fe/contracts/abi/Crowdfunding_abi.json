@@ -89,7 +89,7 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "deadline",
+				"name": "numdays",
 				"type": "uint256"
 			}
 		],
@@ -109,6 +109,19 @@
 		"name": "disburseRewards",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getAllListedTokens",
+		"outputs": [
+			{
+				"internalType": "uint256[]",
+				"name": "",
+				"type": "uint256[]"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -164,6 +177,11 @@
 				"internalType": "address",
 				"name": "topDonor",
 				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",
@@ -184,6 +202,25 @@
 				"name": "",
 				"type": "address"
 			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "listedTokens",
+		"outputs": [
 			{
 				"internalType": "uint256",
 				"name": "",
@@ -226,6 +263,11 @@
 			{
 				"internalType": "address",
 				"name": "topDonor",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "owner",
 				"type": "address"
 			}
 		],

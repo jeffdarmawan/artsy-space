@@ -18,7 +18,7 @@ import ProductVariant from "@/app/(subroot)/products/productVariant";
 import ProductRecommendation from "@/app/(subroot)/products/productRecommendation";
 
 // NFT
-import { BaseError, useReadContract, useWriteContract } from 'wagmi'
+import { BaseError, useReadContract, useAccount, useWriteContract } from 'wagmi'
 import { readContract, waitForTransactionReceipt, writeContract} from '@wagmi/core'
 import { ArtworkConf } from '@/contracts/Artwork'
 import { useState, useEffect } from 'react';
@@ -35,6 +35,9 @@ export default function Page({
 }: {
     params: { tokenId: string };
 }) {
+
+    const account = useAccount();
+
     // token metadata as state
     const [metadata, setMetadata] = useState< { title: string; description: string; image_url: string } >();
     const [isOnSale, setIsOnSale] = useState<boolean>(false);
@@ -92,6 +95,7 @@ export default function Page({
         deadline: Number(crowdfundListingResult[1]),
         raised: Number(crowdfundListingResult[2]),
         topDonor: crowdfundListingResult[3] as Address,
+        owner: crowdfundListingResult[4] as Address,
       };
 
       setCrowdfund(crowdfundListing);
@@ -173,6 +177,23 @@ export default function Page({
     startFetching();
   }
 
+  const handleDisburse = async () => {
+    setIsPending(true);
+
+    console.log(params.tokenId)
+    const disburseHash = await writeContract(wagmiConfig, {
+      address: CrowdfundingConf.address,
+      abi: CrowdfundingConf.abi,
+      functionName: 'disburseRewards',
+      args: [Number(params.tokenId)],
+    })
+
+    console.log("disburseHash: ", disburseHash)
+
+    setIsPending(false);
+    startFetching();
+  }
+
   return (
     <SectionLayout>
       <div className="mx-auto space-y-6 p-8 lg:space-y-16">
@@ -210,60 +231,6 @@ export default function Page({
                 </span>
               </p>
             </div>
-
-            {/* <div className="space-y-3 border-b border-[#E8ECEF] py-6">
-              <p className="font-inter text-base font-normal text-[#343839]">
-                Offer expires in:
-              </p>
-
-              <div className="flex gap-4">
-                <div className="w-fit">
-                  <div className="flex h-[60px] w-[60px] items-center justify-center bg-[#F3F5F7] font-poppins text-[34px] font-medium text-[#141718]">
-                    02
-                  </div>
-                  <p className="text-center font-inter text-xs font-normal text-[#6C7275]">
-                    Days
-                  </p>
-                </div>
-                <div className="w-fit">
-                  <div className="flex h-[60px] w-[60px] items-center justify-center bg-[#F3F5F7] font-poppins text-[34px] font-medium text-[#141718]">
-                    12
-                  </div>
-                  <p className="text-center font-inter text-xs font-normal text-[#6C7275]">
-                    Hours
-                  </p>
-                </div>
-                <div className="w-fit">
-                  <div className="flex h-[60px] w-[60px] items-center justify-center bg-[#F3F5F7] font-poppins text-[34px] font-medium text-[#141718]">
-                    45
-                  </div>
-                  <p className="text-center font-inter text-xs font-normal text-[#6C7275]">
-                    Minutes
-                  </p>
-                </div>
-                <div className="w-fit">
-                  <div className="flex h-[60px] w-[60px] items-center justify-center bg-[#F3F5F7] font-poppins text-[34px] font-medium text-[#141718]">
-                    05
-                  </div>
-                  <p className="text-center font-inter text-xs font-normal text-[#6C7275]">
-                    Seconds
-                  </p>
-                </div>
-              </div>
-            </div> */}
-
-            {/* <div className="space-y-6 py-6">
-              <div className="space-y-2">
-                <p className="font-inter text-base font-semibold text-[#6C7275]">
-                  Measurements
-                </p>
-                <p className="font-inter text-xl font-normal text-[#141718]">
-                  17 1/2x20 5/8
-                </p>
-              </div>
-
-              <ProductVariant variants={data.variants} />
-            </div> */}
 
             <div className="space-y-4 border-b border-[#E8ECEF] py-6 lg:hidden">
               <div className="flex h-10 gap-2 lg:h-[52px]">
@@ -304,26 +271,6 @@ export default function Page({
                 Add to Cart
               </Button>
             </div>
-
-            {/* <div className="space-y-2 pt-6">
-              <div className="grid grid-cols-[100px_1fr] font-inter text-xs lg:grid-cols-[140px_1fr] lg:text-sm">
-                <span className="text-[#6C7275]">SKU</span>
-                <span className="text-[#141718]">1117</span>
-              </div>
-              <div className="grid grid-cols-[100px_1fr] font-inter text-xs lg:grid-cols-[140px_1fr] lg:text-sm">
-                <span className="text-[#6C7275]">CATEGORY</span>
-                <span className="text-[#141718]">
-                  {data.categories.map((category) => (
-                    <span
-                      key={category}
-                      className="after:ml-0.5 after:mr-1 after:content-[','] last:after:mx-0 last:after:content-['']"
-                    >
-                      {category}
-                    </span>
-                  ))}
-                </span>
-              </div>
-            </div> */}
           </div>
 
           {/* ON SALE PURCHASE AREA */}
@@ -385,6 +332,9 @@ export default function Page({
               <Button width="full" fontSize="sm" className="h-10 rounded" onClick={handleDonate} disabled={isPending}>
                 {isPending ? 'Sending...' : 'Donate'}
               </Button>
+              {account.address == crowdfund?.owner &&
+              <Button width="full" fontSize="sm" className="h-10 rounded" onClick={handleDisburse} >Disburse</Button>
+              }
               {/* {error && ( 
                 <div>Error: {(error as BaseError).shortMessage || error.message}</div> 
               )}  */}

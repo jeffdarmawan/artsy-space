@@ -183,7 +183,7 @@ export default function Home() {
           </Heading>
 
           <div className="grid grid-cols-2 gap-x-2 gap-y-4 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-4 lg:gap-y-8 xl:grid-cols-5">
-            {products.map((product) => (
+            {/* {products.map((product) => (
               <ProductCard.Root key={product.id} data={product}>
                 <ProductCard.Thumbnail>
                   <ProductCard.ThumbnailBadge>
@@ -200,7 +200,7 @@ export default function Home() {
                   <ProductCard.Price />
                 </ProductCard.Content>
               </ProductCard.Root>
-            ))}
+            ))} */}
           </div>
         </div>
       </SectionLayout>

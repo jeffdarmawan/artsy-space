@@ -18,6 +18,7 @@ contract Marketplace {
     // key: tokenID
     // value: Listing
     mapping(uint256 => Listing) public listings;
+    uint256[] public listedTokens;
 
     event ArtworkListed(uint256 indexed tokenID, uint256 price);
     event ArtworkSold(uint256 indexed tokenID, address indexed seller, address indexed buyer, uint256 price);
@@ -34,6 +35,7 @@ contract Marketplace {
 
         listing.tokenID = tokenID;
         listing.price = price;
+        listedTokens.push(tokenID);
 
         emit ArtworkListed(tokenID, price);
     }
@@ -66,5 +68,9 @@ contract Marketplace {
 
     function getPrice(uint256 tokenID) external view returns (uint256) {
         return listings[tokenID].price;
+    }
+
+    function getAllListedTokens() external view returns (uint256[] memory){
+        return listedTokens;
     }
 }

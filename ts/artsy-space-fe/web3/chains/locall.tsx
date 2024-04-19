@@ -3,7 +3,7 @@ import { type Chain } from 'viem'
 export const locall = {
   id: 1337,
   name: 'Locall',
-  nativeCurrency: { name: 'Ether', symbol: 'WFH', decimals: 18 },
+  nativeCurrency: { name: 'WorkFromHome', symbol: 'WFH', decimals: 18 },
   rpcUrls: {
     default: { http: ['HTTP://127.0.0.1:7545'] },
   },

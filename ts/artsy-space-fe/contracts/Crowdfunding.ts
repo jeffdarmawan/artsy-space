@@ -11,5 +11,6 @@ export type CrowdfundListing = {
     goal: number,
     deadline: number,
     raised: number,
+    owner: Address,
     topDonor: Address,
 }

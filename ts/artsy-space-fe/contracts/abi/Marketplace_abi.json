@@ -66,6 +66,19 @@
 		"type": "event"
 	},
 	{
+		"inputs": [],
+		"name": "Artwork",
+		"outputs": [
+			{
+				"internalType": "contract IERC721",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "uint256",
@@ -98,12 +111,12 @@
 	},
 	{
 		"inputs": [],
-		"name": "Artwork",
+		"name": "getAllListedTokens",
 		"outputs": [
 			{
-				"internalType": "contract IERC721",
+				"internalType": "uint256[]",
 				"name": "",
-				"type": "address"
+				"type": "uint256[]"
 			}
 		],
 		"stateMutability": "view",
@@ -118,6 +131,25 @@
 			}
 		],
 		"name": "getPrice",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "listedTokens",
 		"outputs": [
 			{
 				"internalType": "uint256",
