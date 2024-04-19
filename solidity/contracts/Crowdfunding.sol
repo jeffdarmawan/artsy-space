@@ -124,4 +124,13 @@ contract Crowdfunding {
         // reset the listing
         listing.raised = 0; 
     }
+
+    function getListing(uint256 _tokenID) external view returns (
+        uint256 goal,
+        uint256 deadline,
+        uint256 raised,
+        address topDonor) {
+        Listing storage listing = listings[_tokenID];
+        return (listing.goal, listing.deadline, listing.raised, listing.topDonor);
+    }
 }

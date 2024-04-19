@@ -17,23 +17,10 @@ import abi from '@/contracts/abi/MyToken_abi.json'
 import NFTMintModal from "@/components/ui/nft-mint-modal";
 import NFTSellModal from "@/components/ui/nft-sell-modal";
 import NFTCrowdfundModal from "@/components/ui/nft-crowdfund-modal";
+import { Address } from "viem";
 
 export default function Page() {
   const account = useAccount();
-  const chains = useChains();
-
-  const { data: hash, writeContract } = useWriteContract() 
-
-  // this transfers MyToken we did in the gmeet
-  const handleTransfer = () => {
-    console.log("transferring");
-    writeContract({ 
-      address: '0x18Bd9dC4F31f2Fbd7Fa2C7524a076DB877c5C239', 
-      abi: abi, 
-      functionName: 'transfer', 
-      args: ['0x475b87f5C780E7F425B64fd041b4de3ca328658f', 2000], 
-    }) 
-  };
 
   return (
     <SectionLayout>
@@ -42,19 +29,15 @@ export default function Page() {
           <Heading as="h1" intent="shop-page">
             Your Collection
           </Heading>
-          <p>Your address: {account.address}</p>
+          {/* <p>Your address: {account.address}</p> */}
           {/* <p>account content: </p> */}
           {/* <pre>
             {JSON.stringify(account, null, 2)}
           </pre> */}
           {account.address && <NFTMintModal />}
-          {account.address && <NFTSellModal />}
-          {account.address && <NFTCrowdfundModal/>}
         </div>
 
-        <Button onClick={handleTransfer}>Transfer</Button>
-
-        <CatalogProduct address={undefined} />
+        <CatalogProduct address={account.address as Address} />
       </div>
     </SectionLayout>
   );

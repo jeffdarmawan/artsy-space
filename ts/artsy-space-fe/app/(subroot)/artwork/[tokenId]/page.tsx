@@ -20,11 +20,11 @@ import ProductRecommendation from "@/app/(subroot)/products/productRecommendatio
 // NFT
 import { BaseError, useReadContract, useWriteContract } from 'wagmi'
 import { readContract, waitForTransactionReceipt, writeContract} from '@wagmi/core'
-import { Artwork } from '@/contracts/Artwork'
+import { ArtworkConf } from '@/contracts/Artwork'
 import { useState, useEffect } from 'react';
 import { wagmiConfig } from "@/web3/config";
-import { Marketplace } from "@/contracts/Marketplace";
-import { Crowdfunding, CrowdfundListing } from "@/contracts/Crowdfunding";
+import { MarketplaceConf } from "@/contracts/Marketplace";
+import { CrowdfundingConf, CrowdfundListing } from "@/contracts/Crowdfunding";
 import { on } from "events";
 import { Address, Hash } from "viem";
 import { Input } from "@mui/material";
@@ -50,8 +50,8 @@ export default function Page({
     async function startFetching() {
       // get tokenURI from smart contract
       const tokenURI = await readContract(wagmiConfig, { 
-            abi: Artwork.abi, 
-            address: Artwork.address, 
+            abi: ArtworkConf.abi, 
+            address: ArtworkConf.address, 
             functionName: 'tokenURI', 
             args: [ Number(params.tokenId) ], 
         });
@@ -68,8 +68,8 @@ export default function Page({
 
       // check if onSale
       const priceResult = await readContract(wagmiConfig, { 
-        abi: Marketplace.abi, 
-        address: Marketplace.address, 
+        abi: MarketplaceConf.abi, 
+        address: MarketplaceConf.address, 
         functionName: 'getPrice', 
         args: [ Number(params.tokenId) ], 
       }) as number;
@@ -80,8 +80,8 @@ export default function Page({
 
       // check if onCrowdfund
       const crowdfundListingResult = await readContract(wagmiConfig, {
-        abi: Crowdfunding.abi,
-        address: Crowdfunding.address,
+        abi: CrowdfundingConf.abi,
+        address: CrowdfundingConf.address,
         functionName: 'getListing',
         args: [Number(params.tokenId)],
       }) as Array<string>;
@@ -126,7 +126,7 @@ export default function Page({
       address: ERC20.address,
       abi: ERC20.abi,
       functionName: 'approve',
-      args: [Crowdfunding.address, crowdfundAmount],
+      args: [CrowdfundingConf.address, crowdfundAmount],
     })
 
     console.log("approveHash: ", approveHash)
@@ -136,8 +136,8 @@ export default function Page({
     console.log("approveReceipt: ", approveReceipt)
 
     const contributeHash = await writeContract(wagmiConfig, {
-      address: Crowdfunding.address,
-      abi: Crowdfunding.abi,
+      address: CrowdfundingConf.address,
+      abi: CrowdfundingConf.abi,
       functionName: 'contribute',
       args: [3, 30],
     })
@@ -155,8 +155,8 @@ export default function Page({
     setIsPending(true);
     console.log(params.tokenId)
     const buyHash = await writeContract(wagmiConfig, {
-      address: Marketplace.address,
-      abi: Marketplace.abi,
+      address: MarketplaceConf.address,
+      abi: MarketplaceConf.abi,
       functionName: 'buy',
       args: [Number(params.tokenId)],
     })

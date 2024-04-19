@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 import Dropzone from "react-dropzone";
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import Button from "./button";
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { Artwork } from '@/contracts/Artwork'
+import { ArtworkConf, Artwork } from '@/contracts/Artwork'
 
 
 // modal style 
@@ -26,11 +26,10 @@ const style = {
     p: 4,
   };
 
-
-import abi from '@/contracts/abi/Crowdfunding_abi.json' 
+import { CrowdfundingConf } from "@/contracts/Crowdfunding";
 import { useAccount, useWriteContract, useChains } from 'wagmi'
 
-const NFTCrowdfundModal = () => {
+const NFTCrowdfundModal = (artwork: Artwork) => {
     // file state
     const [file, setFile] = useState<File>();
     const [uploading, setUploading] = useState(false);
@@ -65,8 +64,8 @@ const NFTCrowdfundModal = () => {
     
         //listItem -> interact with smart contract
         writeContract({ 
-            address: "0x7F7734b949C71d38819CDE926E2B907896CB5ba3", // address of contract "Crowdfund.sol"
-            abi: abi,
+            address: CrowdfundingConf.address,
+            abi: CrowdfundingConf.abi,
             functionName: 'createListing',
             args: [parseInt(tokenID), parseInt(goal), parseInt(deadline)], //tokenID, goal, deadline
         })
@@ -74,7 +73,7 @@ const NFTCrowdfundModal = () => {
 
     return (
         <>
-            <Button onClick={handleOpen} variant="contained">Crowdfund NFT</Button>
+            <Button onClick={handleOpen} variant={"ghost"} width="full">Crowdfund Artwork</Button>
             <Modal 
                 open={open}
                 onClose={handleClose}
@@ -148,7 +147,7 @@ const NFTCrowdfundModal = () => {
                                 </td>
                             </tr>
                         </table>
-                        <Button type="submit" variant="contained" color="primary">Submit</Button>
+                        <Button type="submit" color="primary">Submit</Button>
                     </form>
                     </div>
                 </Box>
