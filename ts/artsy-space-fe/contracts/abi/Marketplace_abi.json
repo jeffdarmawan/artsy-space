@@ -2,12 +2,12 @@
 	{
 		"inputs": [
 			{
-				"internalType": "contract IERC20",
+				"internalType": "address",
 				"name": "_token",
 				"type": "address"
 			},
 			{
-				"internalType": "contract IERC721",
+				"internalType": "address",
 				"name": "_NFT",
 				"type": "address"
 			}

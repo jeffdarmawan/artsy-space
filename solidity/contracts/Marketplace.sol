@@ -6,7 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Marketplace {
 
-    IERC20 public token; // ETH
+    IERC20 public token; 
     IERC721 public Artwork; 
 
     struct Listing {
@@ -23,9 +23,9 @@ contract Marketplace {
     event ArtworkSold(uint256 indexed tokenID, address indexed seller, address indexed buyer, uint256 price);
 
 
-    constructor(IERC20 _token, IERC721 _NFT) {
-        token = _token;
-        Artwork = _NFT;
+    constructor(address _token, address _NFT) {
+        token = IERC20(_token);
+        Artwork = IERC721(_NFT);
     }
 
     function createListing(uint256 tokenID, uint256 price) external {
