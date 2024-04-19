@@ -34,9 +34,9 @@ contract Crowdfunding {
 
     mapping(uint256 => Contribution[]) public contributions;
 
-    constructor(IERC20 _token, IERC721 _NFT) {
-        token = _token;
-        Artwork = _NFT;
+    constructor(address _token, address _NFT) {
+        token = IERC20(_token);
+        Artwork = IERC721(_NFT);
     }
 
     function createListing(uint256 tokenID, uint256 goal, uint256 numdays) external {

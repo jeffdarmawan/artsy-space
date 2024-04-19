@@ -19,14 +19,14 @@ import ProductRecommendation from "@/app/(subroot)/products/productRecommendatio
 
 // NFT
 import { BaseError, useReadContract, useWriteContract } from 'wagmi'
-import { readContract } from '@wagmi/core'
+import { readContract, waitForTransactionReceipt, writeContract} from '@wagmi/core'
 import { Artwork } from '@/contracts/Artwork'
 import { useState, useEffect } from 'react';
 import { wagmiConfig } from "@/web3/config";
 import { Marketplace } from "@/contracts/Marketplace";
 import { Crowdfunding, CrowdfundListing } from "@/contracts/Crowdfunding";
 import { on } from "events";
-import { Address } from "viem";
+import { Address, Hash } from "viem";
 import { Input } from "@mui/material";
 import { ERC20 } from "@/contracts/ERC20";
 
@@ -45,62 +45,64 @@ export default function Page({
     const [isCrowdfund, setIsCrowdfund] = useState<boolean>();
     const [crowdfundAmount, setCrowdfundAmount] = useState<number>();
 
+    const [isPending, setIsPending] = useState<boolean>(false);
+
+    async function startFetching() {
+      // get tokenURI from smart contract
+      const tokenURI = await readContract(wagmiConfig, { 
+            abi: Artwork.abi, 
+            address: Artwork.address, 
+            functionName: 'tokenURI', 
+            args: [ Number(params.tokenId) ], 
+        });
+
+      console.log('tokenURI: ', tokenURI);
+      
+      // fetch metadata from tokenURI output (S3)
+      const res = await fetch(tokenURI as string);
+      const metadataRes = await res.json();
+      console.log("metadataRes: ", metadataRes);
+
+      // set metadata state
+      setMetadata(metadataRes);
+
+      // check if onSale
+      const priceResult = await readContract(wagmiConfig, { 
+        abi: Marketplace.abi, 
+        address: Marketplace.address, 
+        functionName: 'getPrice', 
+        args: [ Number(params.tokenId) ], 
+      }) as number;
+      console.log('priceResult: ', priceResult);
+
+      setIsOnSale(priceResult > 0);
+      setPrice(priceResult);
+
+      // check if onCrowdfund
+      const crowdfundListingResult = await readContract(wagmiConfig, {
+        abi: Crowdfunding.abi,
+        address: Crowdfunding.address,
+        functionName: 'getListing',
+        args: [Number(params.tokenId)],
+      }) as Array<string>;
+
+      const crowdfundListing: CrowdfundListing = {
+        tokenID: Number(params.tokenId),
+        goal: Number(crowdfundListingResult[0]),
+        deadline: Number(crowdfundListingResult[1]),
+        raised: Number(crowdfundListingResult[2]),
+        topDonor: crowdfundListingResult[3] as Address,
+      };
+
+      setCrowdfund(crowdfundListing);
+      setIsCrowdfund(crowdfundListing.goal > 0);
+    }
+
     // get token metadata
     useEffect(() => {
 
       console.log('Effect is running');
-
-      async function startFetching() {
-        // get tokenURI from smart contract
-        const tokenURI = await readContract(wagmiConfig, { 
-              abi: Artwork.abi, 
-              address: Artwork.address, 
-              functionName: 'tokenURI', 
-              args: [ Number(params.tokenId) ], 
-          });
-
-        console.log('tokenURI: ', tokenURI);
-        
-        // fetch metadata from tokenURI output (S3)
-        const res = await fetch(tokenURI as string);
-        const metadataRes = await res.json();
-        console.log("metadataRes: ", metadataRes);
-
-        // set metadata state
-        setMetadata(metadataRes);
-
-        // check if onSale
-        const priceResult = await readContract(wagmiConfig, { 
-          abi: Marketplace.abi, 
-          address: Marketplace.address, 
-          functionName: 'getPrice', 
-          args: [ Number(params.tokenId) ], 
-        }) as number;
-        console.log('priceResult: ', priceResult);
-
-        setIsOnSale(priceResult > 0);
-        setPrice(priceResult);
-
-        // check if onCrowdfund
-        const crowdfundListingResult = await readContract(wagmiConfig, {
-          abi: Crowdfunding.abi,
-          address: Crowdfunding.address,
-          functionName: 'getListing',
-          args: [Number(params.tokenId)],
-        }) as Array<string>;
-
-        const crowdfundListing: CrowdfundListing = {
-          tokenID: Number(params.tokenId),
-          goal: Number(crowdfundListingResult[0]),
-          deadline: Number(crowdfundListingResult[1]),
-          raised: Number(crowdfundListingResult[2]),
-          topDonor: crowdfundListingResult[3] as Address,
-        };
-
-        setCrowdfund(crowdfundListing);
-        setIsCrowdfund(crowdfundListing.goal > 0);
-      }
-
+      
       startFetching();
 
       return () => {
@@ -109,45 +111,60 @@ export default function Page({
     }, [params.tokenId])
 
   // usewritecontract
-  const { 
-    data: hash,
-    error, 
-    isPending, 
-    writeContract 
-  } = useWriteContract() 
+  // const { 
+  //   data: hash,
+  //   error, 
+  //   isPending, 
+  //   writeContract 
+  // } = useWriteContract() 
 
   // @Keran: here
   const handleDonate = async () => {
+    setIsPending(true);
     console.log(Number(params.tokenId), crowdfundAmount)
-    const hashapprove = await writeContract({
+    const approveHash = await writeContract(wagmiConfig, {
       address: ERC20.address,
       abi: ERC20.abi,
       functionName: 'approve',
       args: [Crowdfunding.address, crowdfundAmount],
     })
-    if (error) {
-      return
-    }
 
-    console.log("hashapprove: ", hashapprove)
+    console.log("approveHash: ", approveHash)
 
-    const hashcontribute = await writeContract({
+    const approveReceipt = await waitForTransactionReceipt(wagmiConfig, { hash: approveHash as Hash })
+    
+    console.log("approveReceipt: ", approveReceipt)
+
+    const contributeHash = await writeContract(wagmiConfig, {
       address: Crowdfunding.address,
       abi: Crowdfunding.abi,
       functionName: 'contribute',
-      args: [Number(params.tokenId), crowdfundAmount],
+      args: [3, 30],
     })
-    // console.log("hashcontribute: ", hashcontribute)
+
+    const crowdfundReceipt = await waitForTransactionReceipt(wagmiConfig, { hash: contributeHash as Hash })
+
+    console.log("crowdfundReceipt: ", crowdfundReceipt);
+
+    setIsPending(false);
+
+    startFetching();
   }
 
-  const handleBuy = () => {
+  const handleBuy = async () => {
+    setIsPending(true);
     console.log(params.tokenId)
-    writeContract({
+    const buyHash = await writeContract(wagmiConfig, {
       address: Marketplace.address,
       abi: Marketplace.abi,
       functionName: 'buy',
       args: [Number(params.tokenId)],
     })
+
+    console.log("buyHash: ", buyHash)
+
+    setIsPending(false);
+    startFetching();
   }
 
   return (
@@ -325,9 +342,9 @@ export default function Page({
               <Button width="full" fontSize="sm" className="h-10 rounded" onClick={handleBuy} disabled={isPending}>
                 {isPending ? 'Sending...' : 'Buy'}
               </Button>
-              {error && ( 
+              {/* {error && ( 
                 <div>Error: {(error as BaseError).shortMessage || error.message}</div> 
-              )} 
+              )}  */}
             </div>
           </div>
           }
@@ -362,9 +379,9 @@ export default function Page({
               <Button width="full" fontSize="sm" className="h-10 rounded" onClick={handleDonate} disabled={isPending}>
                 {isPending ? 'Sending...' : 'Donate'}
               </Button>
-              {error && ( 
+              {/* {error && ( 
                 <div>Error: {(error as BaseError).shortMessage || error.message}</div> 
-              )} 
+              )}  */}
             </div>
           </div>
           }
