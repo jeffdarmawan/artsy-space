@@ -22,7 +22,6 @@ contract Marketplace {
     event ArtworkListed(uint256 indexed tokenID, uint256 price);
     event ArtworkSold(uint256 indexed tokenID, address indexed seller, address indexed buyer, uint256 price);
 
-
     constructor(address _token, address _NFT) {
         token = IERC20(_token);
         Artwork = IERC721(_NFT);
@@ -59,6 +58,8 @@ contract Marketplace {
         // Transfer the platform fee to the contract
         token.transferFrom(msg.sender, address(this), platformFee);
         Artwork.transferFrom(owner, msg.sender, tokenID);
+        
+        delete listings[tokenID];
 
         emit ArtworkSold(tokenID, owner, msg.sender, listing.price);
     }

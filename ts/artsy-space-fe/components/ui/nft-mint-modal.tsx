@@ -143,7 +143,7 @@ const NFTMintModal = () => {
             })
     
             if (uploadResponse.ok) {
-                alert('Upload successful!')
+                // alert('Upload successful!')
                 console.log("tokenURI: ", tokenURI)
 
                 // 3. Mint NFT
@@ -154,14 +154,14 @@ const NFTMintModal = () => {
                     functionName: 'createArtwork', 
                     args: [ tokenURI ], 
                 });
+
+                setOpen(false);
             } else {
                 console.error('S3 Upload Error:', uploadResponse)
             }
         } else {
             alert('Failed to get pre-signed URL.')
         }
-
-        setOpen(false);
     }
 
     return (

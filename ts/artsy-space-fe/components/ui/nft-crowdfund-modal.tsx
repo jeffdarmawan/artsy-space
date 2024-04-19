@@ -43,7 +43,6 @@ const NFTCrowdfundModal = (artwork: Artwork) => {
     }
 
     // form state
-    const [tokenID, setTokenId] = useState("");
     const [goal, setGoal] = useState("");
     const [deadline, setDeadline] = useState("");
 
@@ -59,15 +58,22 @@ const NFTCrowdfundModal = (artwork: Artwork) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        writeContract({
+            address: ArtworkConf.address,
+            abi: ArtworkConf.abi,
+            functionName: 'approve',
+            args: [CrowdfundingConf.address, artwork.id],
+        })
+
         // setUploading(true);
-        console.log("tokenID:", parseInt(tokenID), "goal:", parseInt(goal), "deadline:", parseInt(deadline));
+        console.log("tokenID:", artwork.id, "goal:", parseInt(goal), "deadline:", parseInt(deadline));
     
         //listItem -> interact with smart contract
         writeContract({ 
             address: CrowdfundingConf.address,
             abi: CrowdfundingConf.abi,
             functionName: 'createListing',
-            args: [parseInt(tokenID), parseInt(goal), parseInt(deadline)], //tokenID, goal, deadline
+            args: [artwork.id, parseInt(goal), parseInt(deadline)], 
         })
     };
 
@@ -99,14 +105,6 @@ const NFTCrowdfundModal = (artwork: Artwork) => {
 
                     <div style={{marginTop: '20px'}}>
                     <form onSubmit={handleSubmit}>
-                        <input
-                                type="text"
-                                id="tokenId"
-                                placeholder="Put tokenId here"
-                                style={{width: '95%', border: '1px solid #ccc', padding: '5px', marginTop: '10px', marginBottom: '20px', marginLeft: '0px'}}
-                                onChange={(e) => setTokenId(e.target.value)}
-                                required
-                            />
                         {/* split layout into two using table */}
                         <table style={{width: '100%', height: '520px'}}>
                             <tr>

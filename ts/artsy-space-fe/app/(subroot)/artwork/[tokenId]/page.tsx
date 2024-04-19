@@ -76,7 +76,7 @@ export default function Page({
       console.log('priceResult: ', priceResult);
 
       setIsOnSale(priceResult > 0);
-      setPrice(priceResult);
+      setPrice(Number(priceResult));
 
       // check if onCrowdfund
       const crowdfundListingResult = await readContract(wagmiConfig, {
@@ -110,14 +110,6 @@ export default function Page({
       };
     }, [params.tokenId])
 
-  // usewritecontract
-  // const { 
-  //   data: hash,
-  //   error, 
-  //   isPending, 
-  //   writeContract 
-  // } = useWriteContract() 
-
   // @Keran: here
   const handleDonate = async () => {
     setIsPending(true);
@@ -139,7 +131,7 @@ export default function Page({
       address: CrowdfundingConf.address,
       abi: CrowdfundingConf.abi,
       functionName: 'contribute',
-      args: [3, 30],
+      args: [Number(params.tokenId), crowdfundAmount],
     })
 
     const crowdfundReceipt = await waitForTransactionReceipt(wagmiConfig, { hash: contributeHash as Hash })
@@ -153,6 +145,20 @@ export default function Page({
 
   const handleBuy = async () => {
     setIsPending(true);
+
+    const approveHash_buy = await writeContract(wagmiConfig, {
+      address: ERC20.address,
+      abi: ERC20.abi,
+      functionName: 'approve',
+      args: [MarketplaceConf.address, price], // TODO: change this 
+    })
+
+    console.log("approveHash: ", approveHash_buy)
+
+    const approveReceipt = await waitForTransactionReceipt(wagmiConfig, { hash: approveHash_buy as Hash })
+    
+    console.log("approveReceipt: ", approveReceipt)
+
     console.log(params.tokenId)
     const buyHash = await writeContract(wagmiConfig, {
       address: MarketplaceConf.address,
@@ -328,7 +334,7 @@ export default function Page({
                 Artwork is on sale!
               </p>
               <div className="flex items-end justify-between">
-                <p className="font-inter text-sm text-[#6C7275]">Goal</p>
+                <p className="font-inter text-sm text-[#6C7275]">Price</p>
                 <div className="space-y-1 text-right">
                   <p className="font-poppins text-xl font-semibold text-[#141718]">
                     WFH {price ?? 0}

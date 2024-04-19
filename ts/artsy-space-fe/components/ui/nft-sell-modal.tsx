@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import Button from "./button";
 
 
 // modal style 
@@ -24,10 +25,10 @@ const style = {
   };
 
 
+import { ArtworkConf } from '@/contracts/Artwork'
 import { MarketplaceConf } from '@/contracts/Marketplace' 
 import { useAccount, useWriteContract, useChains } from 'wagmi'
 import { Artwork } from "@/contracts/Artwork";
-import Button from "./button";
 
 const NFTSellModal = (artwork: Artwork) => { 
     // file state
@@ -43,7 +44,6 @@ const NFTSellModal = (artwork: Artwork) => {
     }
 
     // form state
-    const [tokenID, setTokenID] = useState("");
     const [price, setPrice] = useState("");
 
     const handleDrop = (acceptedFiles: File[]) => {
@@ -57,16 +57,25 @@ const NFTSellModal = (artwork: Artwork) => {
     // @Keran: your submit button should call this function
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // approve transfer of Artwork to Marketplace
+        writeContract({
+            address: ArtworkConf.address,
+            abi: ArtworkConf.abi, 
+            functionName: 'approve', 
+            args: [MarketplaceConf.address, artwork.id],
+        })
     
-        // listItem -> interact with smart contract
+        // list Artwork to Marketplace
         console.log("transferring");
         writeContract({ 
-            address: MarketplaceConf.address, // address of contract "MarketPlace.sol"
+            address: MarketplaceConf.address, 
             abi: MarketplaceConf.abi, 
             functionName: 'createListing', 
-            args: [artwork.id, parseInt(price)], // tokenID, price
+            args: [artwork.id, parseInt(price)], 
         }) 
-        
+
+        setOpen(false);
     }
 
     return (
