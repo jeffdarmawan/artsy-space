@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Dropzone from "react-dropzone";
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import Button from './button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import IconButton from '@mui/material/IconButton';
@@ -11,7 +11,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 // NFT
 import { useAccount, useWriteContract } from 'wagmi'
-import { Artwork } from '@/contracts/Artwork'
+import { ArtworkConf } from '@/contracts/Artwork'
 
 
 // modal style 
@@ -143,30 +143,30 @@ const NFTMintModal = () => {
             })
     
             if (uploadResponse.ok) {
-                alert('Upload successful!')
+                // alert('Upload successful!')
                 console.log("tokenURI: ", tokenURI)
 
                 // 3. Mint NFT
                 console.log("minting NFT");
                 writeContract({ 
-                    address: Artwork.address, 
-                    abi: Artwork.abi, 
+                    address: ArtworkConf.address, 
+                    abi: ArtworkConf.abi, 
                     functionName: 'createArtwork', 
                     args: [ tokenURI ], 
                 });
+
+                setOpen(false);
             } else {
                 console.error('S3 Upload Error:', uploadResponse)
             }
         } else {
             alert('Failed to get pre-signed URL.')
         }
-
-        setOpen(false);
     }
 
     return (
         <>
-            <Button onClick={handleOpen} variant="contained">Mint NFT</Button>
+            <Button onClick={handleOpen}>Mint NFT</Button>
             <Modal 
                 open={open}
                 onClose={handleClose}
@@ -246,7 +246,7 @@ const NFTMintModal = () => {
                                 </td>
                             </tr>
                         </table>
-                        <Button type="submit" variant="contained" color="primary">Submit</Button>
+                        <Button type="submit" color="primary">Submit</Button>
                     </form>
                     </div>
                 </Box>

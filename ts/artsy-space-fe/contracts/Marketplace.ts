@@ -1,7 +1,7 @@
 import abi from './abi/Marketplace_abi.json'
 import { type Address, type Chain } from 'viem'
 
-export const Marketplace = {
+export const MarketplaceConf = {
     abi: abi,
-    address: '0x2e7f35e03083Dcc3D59bBb93f35f8B66a8689782' as Address,
+    address: process.env.NEXT_PUBLIC_ADDR_MARKETPLACE as Address,
 }

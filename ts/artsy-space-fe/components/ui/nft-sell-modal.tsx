@@ -3,11 +3,11 @@
 import React, { useState } from "react";
 import Dropzone from "react-dropzone";
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import Button from "./button";
 
 
 // modal style 
@@ -25,10 +25,12 @@ const style = {
   };
 
 
-import abi from '@/contracts/abi/Marketplace_abi.json' 
+import { ArtworkConf } from '@/contracts/Artwork'
+import { MarketplaceConf } from '@/contracts/Marketplace' 
 import { useAccount, useWriteContract, useChains } from 'wagmi'
+import { Artwork } from "@/contracts/Artwork";
 
-const NFTSellModal = () => {
+const NFTSellModal = (artwork: Artwork) => { 
     // file state
     const [file, setFile] = useState<File>();
     const [uploading, setUploading] = useState(false);
@@ -42,7 +44,6 @@ const NFTSellModal = () => {
     }
 
     // form state
-    const [tokenID, setTokenID] = useState("");
     const [price, setPrice] = useState("");
 
     const handleDrop = (acceptedFiles: File[]) => {
@@ -51,29 +52,35 @@ const NFTSellModal = () => {
 
     let accepted={"image/*": ["jpg", "jpeg", "png", "gif"]}
 
-
     const { data: hash, writeContract } = useWriteContract() 
 
     // @Keran: your submit button should call this function
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // setUploading(true);
+        // approve transfer of Artwork to Marketplace
+        writeContract({
+            address: ArtworkConf.address,
+            abi: ArtworkConf.abi, 
+            functionName: 'approve', 
+            args: [MarketplaceConf.address, artwork.id],
+        })
     
-        // listItem -> interact with smart contract
+        // list Artwork to Marketplace
         console.log("transferring");
         writeContract({ 
-            address: '0xa19B8281f2E8E81836F091505416C436FD17931F', // address of contract "MarketPlace.sol"
-            abi: abi, 
+            address: MarketplaceConf.address, 
+            abi: MarketplaceConf.abi, 
             functionName: 'createListing', 
-            args: [parseInt(tokenID), parseInt(price)], // tokenID, price
+            args: [artwork.id, parseInt(price)], 
         }) 
-        
+
+        setOpen(false);
     }
 
     return (
         <>
-            <Button onClick={handleOpen} variant="contained">Sell NFT</Button>
+            <Button onClick={handleOpen} width="full">Sell Artwork</Button>
             <Modal 
                 open={open}
                 onClose={handleClose}
@@ -97,26 +104,12 @@ const NFTSellModal = () => {
                         Sell Your Artwork!
                     </Typography>
 
-                    
-
                     <div style={{ padding: '20px', maxWidth: '400px', margin: 'auto' }}>
                     <form onSubmit={handleSubmit}>
                         <div style={{ marginBottom: '20px' }}>
-                            <label htmlFor="tokenId" style={{ display: 'block', marginBottom: '5px' }}>Token ID:</label>
-                            <input
-                                type="text"
-                                id="tokenId"
-                                onChange={(e) => setTokenID(e.target.value)}
-                                placeholder="Enter Token ID"
-                                style={{ width: '100%', padding: '10px', border: '1px solid #ccc' }}
-                                required
-                            />
-                        </div>
-                        
-                        <div style={{ marginBottom: '20px' }}>
                         <label htmlFor="price" style={{ display: 'block', marginBottom: '5px' }}>Price:</label>
                             <input
-                                type="text"
+                                type="number"
                                 id="price"
                                 onChange={(e) => setPrice(e.target.value)}
                                 placeholder="Selling at ..."
@@ -124,9 +117,8 @@ const NFTSellModal = () => {
                                 required
                             />
                         </div>
-                        <button type="submit" style={{ padding: '10px 20px', background: 'blue', color: 'white', border: 'none', cursor: 'pointer' }}>
-                        Submit
-                        </button>
+                        {/* style={{ padding: '10px 20px', background: 'blue', color: 'white', border: 'none', cursor: 'pointer' }} */}
+                        <Button type="submit"> Sell </Button>
                     </form>
                     </div>
                 </Box>

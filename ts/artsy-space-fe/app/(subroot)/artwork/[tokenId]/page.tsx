@@ -20,11 +20,11 @@ import ProductRecommendation from "@/app/(subroot)/products/productRecommendatio
 // NFT
 import { BaseError, useReadContract, useWriteContract } from 'wagmi'
 import { readContract, waitForTransactionReceipt, writeContract} from '@wagmi/core'
-import { Artwork } from '@/contracts/Artwork'
+import { ArtworkConf } from '@/contracts/Artwork'
 import { useState, useEffect } from 'react';
 import { wagmiConfig } from "@/web3/config";
-import { Marketplace } from "@/contracts/Marketplace";
-import { Crowdfunding, CrowdfundListing } from "@/contracts/Crowdfunding";
+import { MarketplaceConf } from "@/contracts/Marketplace";
+import { CrowdfundingConf, CrowdfundListing } from "@/contracts/Crowdfunding";
 import { on } from "events";
 import { Address, Hash } from "viem";
 import { Input } from "@mui/material";
@@ -50,8 +50,8 @@ export default function Page({
     async function startFetching() {
       // get tokenURI from smart contract
       const tokenURI = await readContract(wagmiConfig, { 
-            abi: Artwork.abi, 
-            address: Artwork.address, 
+            abi: ArtworkConf.abi, 
+            address: ArtworkConf.address, 
             functionName: 'tokenURI', 
             args: [ Number(params.tokenId) ], 
         });
@@ -68,20 +68,20 @@ export default function Page({
 
       // check if onSale
       const priceResult = await readContract(wagmiConfig, { 
-        abi: Marketplace.abi, 
-        address: Marketplace.address, 
+        abi: MarketplaceConf.abi, 
+        address: MarketplaceConf.address, 
         functionName: 'getPrice', 
         args: [ Number(params.tokenId) ], 
       }) as number;
       console.log('priceResult: ', priceResult);
 
       setIsOnSale(priceResult > 0);
-      setPrice(priceResult);
+      setPrice(Number(priceResult));
 
       // check if onCrowdfund
       const crowdfundListingResult = await readContract(wagmiConfig, {
-        abi: Crowdfunding.abi,
-        address: Crowdfunding.address,
+        abi: CrowdfundingConf.abi,
+        address: CrowdfundingConf.address,
         functionName: 'getListing',
         args: [Number(params.tokenId)],
       }) as Array<string>;
@@ -110,14 +110,6 @@ export default function Page({
       };
     }, [params.tokenId])
 
-  // usewritecontract
-  // const { 
-  //   data: hash,
-  //   error, 
-  //   isPending, 
-  //   writeContract 
-  // } = useWriteContract() 
-
   // @Keran: here
   const handleDonate = async () => {
     setIsPending(true);
@@ -126,7 +118,7 @@ export default function Page({
       address: ERC20.address,
       abi: ERC20.abi,
       functionName: 'approve',
-      args: [Crowdfunding.address, crowdfundAmount],
+      args: [CrowdfundingConf.address, crowdfundAmount],
     })
 
     console.log("approveHash: ", approveHash)
@@ -136,10 +128,10 @@ export default function Page({
     console.log("approveReceipt: ", approveReceipt)
 
     const contributeHash = await writeContract(wagmiConfig, {
-      address: Crowdfunding.address,
-      abi: Crowdfunding.abi,
+      address: CrowdfundingConf.address,
+      abi: CrowdfundingConf.abi,
       functionName: 'contribute',
-      args: [3, 30],
+      args: [Number(params.tokenId), crowdfundAmount],
     })
 
     const crowdfundReceipt = await waitForTransactionReceipt(wagmiConfig, { hash: contributeHash as Hash })
@@ -153,10 +145,24 @@ export default function Page({
 
   const handleBuy = async () => {
     setIsPending(true);
+
+    const approveHash_buy = await writeContract(wagmiConfig, {
+      address: ERC20.address,
+      abi: ERC20.abi,
+      functionName: 'approve',
+      args: [MarketplaceConf.address, price], // TODO: change this 
+    })
+
+    console.log("approveHash: ", approveHash_buy)
+
+    const approveReceipt = await waitForTransactionReceipt(wagmiConfig, { hash: approveHash_buy as Hash })
+    
+    console.log("approveReceipt: ", approveReceipt)
+
     console.log(params.tokenId)
     const buyHash = await writeContract(wagmiConfig, {
-      address: Marketplace.address,
-      abi: Marketplace.abi,
+      address: MarketplaceConf.address,
+      abi: MarketplaceConf.abi,
       functionName: 'buy',
       args: [Number(params.tokenId)],
     })
@@ -328,7 +334,7 @@ export default function Page({
                 Artwork is on sale!
               </p>
               <div className="flex items-end justify-between">
-                <p className="font-inter text-sm text-[#6C7275]">Goal</p>
+                <p className="font-inter text-sm text-[#6C7275]">Price</p>
                 <div className="space-y-1 text-right">
                   <p className="font-poppins text-xl font-semibold text-[#141718]">
                     WFH {price ?? 0}

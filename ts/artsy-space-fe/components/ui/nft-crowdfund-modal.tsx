@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 import Dropzone from "react-dropzone";
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
+import Button from "./button";
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { Artwork } from '@/contracts/Artwork'
+import { ArtworkConf, Artwork } from '@/contracts/Artwork'
 
 
 // modal style 
@@ -26,11 +26,10 @@ const style = {
     p: 4,
   };
 
-
-import abi from '@/contracts/abi/Crowdfunding_abi.json' 
+import { CrowdfundingConf } from "@/contracts/Crowdfunding";
 import { useAccount, useWriteContract, useChains } from 'wagmi'
 
-const NFTCrowdfundModal = () => {
+const NFTCrowdfundModal = (artwork: Artwork) => {
     // file state
     const [file, setFile] = useState<File>();
     const [uploading, setUploading] = useState(false);
@@ -44,7 +43,6 @@ const NFTCrowdfundModal = () => {
     }
 
     // form state
-    const [tokenID, setTokenId] = useState("");
     const [goal, setGoal] = useState("");
     const [deadline, setDeadline] = useState("");
 
@@ -60,21 +58,28 @@ const NFTCrowdfundModal = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        writeContract({
+            address: ArtworkConf.address,
+            abi: ArtworkConf.abi,
+            functionName: 'approve',
+            args: [CrowdfundingConf.address, artwork.id],
+        })
+
         // setUploading(true);
-        console.log("tokenID:", parseInt(tokenID), "goal:", parseInt(goal), "deadline:", parseInt(deadline));
+        console.log("tokenID:", artwork.id, "goal:", parseInt(goal), "deadline:", parseInt(deadline));
     
         //listItem -> interact with smart contract
         writeContract({ 
-            address: "0x7F7734b949C71d38819CDE926E2B907896CB5ba3", // address of contract "Crowdfund.sol"
-            abi: abi,
+            address: CrowdfundingConf.address,
+            abi: CrowdfundingConf.abi,
             functionName: 'createListing',
-            args: [parseInt(tokenID), parseInt(goal), parseInt(deadline)], //tokenID, goal, deadline
+            args: [artwork.id, parseInt(goal), parseInt(deadline)], 
         })
     };
 
     return (
         <>
-            <Button onClick={handleOpen} variant="contained">Crowdfund NFT</Button>
+            <Button onClick={handleOpen} variant={"ghost"} width="full">Crowdfund Artwork</Button>
             <Modal 
                 open={open}
                 onClose={handleClose}
@@ -100,14 +105,6 @@ const NFTCrowdfundModal = () => {
 
                     <div style={{marginTop: '20px'}}>
                     <form onSubmit={handleSubmit}>
-                        <input
-                                type="text"
-                                id="tokenId"
-                                placeholder="Put tokenId here"
-                                style={{width: '95%', border: '1px solid #ccc', padding: '5px', marginTop: '10px', marginBottom: '20px', marginLeft: '0px'}}
-                                onChange={(e) => setTokenId(e.target.value)}
-                                required
-                            />
                         {/* split layout into two using table */}
                         <table style={{width: '100%', height: '520px'}}>
                             <tr>
@@ -148,7 +145,7 @@ const NFTCrowdfundModal = () => {
                                 </td>
                             </tr>
                         </table>
-                        <Button type="submit" variant="contained" color="primary">Submit</Button>
+                        <Button type="submit" color="primary">Submit</Button>
                     </form>
                     </div>
                 </Box>

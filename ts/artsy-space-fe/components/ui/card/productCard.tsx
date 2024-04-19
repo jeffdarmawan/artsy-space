@@ -21,15 +21,18 @@ import {
 
 export type ProductDataProps = {
   data: {
-    id: number;
-    image: {
-      src: string;
-      alt: string;
-    };
-    name: string;
-    rating: number;
-    price: number;
+    // id: string;
+    // image: {
+    //   src: string;
+    //   alt: string;
+    // };
+    title: string;
     description: string;
+    image_url: string;
+    // name: string;
+    // rating: number;
+    // price: number;
+    
   };
 };
 
@@ -40,7 +43,7 @@ interface RootProps
 const Root: React.FC<RootProps> = ({ data, className, children, ...props }) => {
   return (
     <ProductCardProvider data={data}>
-      <div className={cn("grid grid-cols-1 gap-3", className)} {...props}>
+      <div className={cn("grid grid-cols-1 gap-2", className)} {...props}>
         {children}
       </div>
     </ProductCardProvider>
@@ -133,14 +136,14 @@ const Image: React.FC<ImageProps> = ({
   className,
   ...props
 }) => {
-  const { image } = useProductCardContext();
+  const product = useProductCardContext();
 
   return (
     <NextImage
-      src={image.src}
+      src={product.image_url}
       width={width}
       height={height}
-      alt={image.alt}
+      alt={product.title}
       className={cn(
         "absolute left-0 top-0 z-0 h-full w-full object-cover",
         className,
@@ -162,53 +165,72 @@ const Content: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
   );
 };
 
-type RatingsProps = {
-  className?: string;
-};
+// type RatingsProps = {
+//   className?: string;
+// };
 
-const Ratings: React.FC<RatingsProps> = ({ className }) => {
-  const { rating } = useProductCardContext();
+// const Ratings: React.FC<RatingsProps> = ({ className }) => {
+//   const { rating } = useProductCardContext();
 
-  return (
-    <div className="flex gap-0.5">
-      {formatRating(rating).map((rating) => (
-        <StarIcon key={rating} className={cn("h-4 w-4", className)} />
-      ))}
-    </div>
-  );
-};
+//   return (
+//     <div className="flex gap-0.5">
+//       {formatRating(rating).map((rating) => (
+//         <StarIcon key={rating} className={cn("h-4 w-4", className)} />
+//       ))}
+//     </div>
+//   );
+// };
 
-type NameProps = Omit<TextProps, "children">;
+// type NameProps = Omit<TextProps, "children">;
 
-const Name: React.FC<NameProps> = ({ className, ...props }) => {
-  const { name } = useProductCardContext();
+// const Name: React.FC<NameProps> = ({ className, ...props }) => {
+//   const { name } = useProductCardContext();
+
+//   return (
+//     <Text
+//       weight={600}
+//       color="black/800"
+//       className={cn("line-clamp-1", className)}
+//       {...props}
+//     >
+//       {name}
+//     </Text>
+//   );
+// };
+
+// type PriceProps = Omit<TextProps, "children">;
+
+// const Price: React.FC<PriceProps> = ({ className, ...props }) => {
+//   const { price } = useProductCardContext();
+
+//   return (
+//     <Text
+//       size="sm"
+//       weight={600}
+//       color="black/800"
+//       className={cn("line-clamp-1", className)}
+//       {...props}
+//     >
+//       {formatCurrency(price)}
+//     </Text>
+//   );
+// };
+
+
+type TitleProps = Omit<TextProps, "children">;
+
+const Title: React.FC<TitleProps> = ({ className, ...props }) => {
+  const { title } = useProductCardContext();
 
   return (
     <Text
-      weight={600}
-      color="black/800"
-      className={cn("line-clamp-1", className)}
+      size="lg"
+      weight={400}
+      color="gray"
+      className={cn(className)}
       {...props}
     >
-      {name}
-    </Text>
-  );
-};
-
-type PriceProps = Omit<TextProps, "children">;
-
-const Price: React.FC<PriceProps> = ({ className, ...props }) => {
-  const { price } = useProductCardContext();
-
-  return (
-    <Text
-      size="sm"
-      weight={600}
-      color="black/800"
-      className={cn("line-clamp-1", className)}
-      {...props}
-    >
-      {formatCurrency(price)}
+      {title}
     </Text>
   );
 };
@@ -240,8 +262,9 @@ export {
   Image,
   Button,
   Content,
-  Ratings,
-  Name,
-  Price,
+  Title,
+  // Ratings,
+  // Name,
+  // Price,
   Description,
 };
