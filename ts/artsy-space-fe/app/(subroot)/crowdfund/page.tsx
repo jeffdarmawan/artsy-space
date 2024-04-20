@@ -7,7 +7,7 @@ import Text from "@/ui/text";
 import Heading from "@/ui/head";
 
 // lib
-import CatalogProduct from "@/app/(subroot)/shop/catalogProduct";
+import CatalogProduct from "@/app/(subroot)/profile/catalogProduct";
 
 // import { useAccount, useDisconnect, useEnsAvatar, useEnsName } from 'wagmi'
 import { useAccount, useWriteContract, useChains } from 'wagmi'

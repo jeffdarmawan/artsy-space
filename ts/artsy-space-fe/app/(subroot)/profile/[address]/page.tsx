@@ -7,7 +7,7 @@ import Text from "@/ui/text";
 import Heading from "@/ui/head";
 
 // lib
-import CatalogProduct from "@/app/(subroot)/shop/catalogProduct";
+import CatalogProduct from "@/app/(subroot)/profile/catalogProduct";
 import NFTMintModal from "@/components/ui/nft-mint-modal";
 
 import { useAccount, useWriteContract, useChains } from 'wagmi'
